@@ -3,12 +3,13 @@
 // abandoned battles, streaks, practice runs, the phone layout and the error
 // screen. Screenshots go to tests/output/site-*.png.
 import { mkdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import {
   startServer, launchBrowser, sleep, press, getStatus, waitFor, startRedBattle, forceWin, forceLoss,
 } from './lib.mjs';
 import { readParty } from './party.mjs';
 
-const OUT = new URL('./output/', import.meta.url).pathname;
+const OUT = fileURLToPath(new URL('./output/', import.meta.url));
 mkdirSync(OUT, { recursive: true });
 
 let failures = 0;
@@ -55,7 +56,7 @@ async function finishDailyGame(page, shotPrefix) {
 const server = await startServer();
 const browser = await launchBrowser();
 try {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const context = await browser.newContext({ locale: 'en-US', viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -101,7 +102,7 @@ try {
   check(!s.canPlay && s.wins === '1', 'reloading the same day keeps it locked, stats saved');
 
   // Same team for everyone today: a second browser gets the same Pokemon.
-  const other = await browser.newContext();
+  const other = await browser.newContext({ locale: 'en-US' });
   const otherPage = await other.newPage();
   await otherPage.clock.setFixedTime(at(DAY1, '22:00:00'));
   await otherPage.goto(server.url);
@@ -161,7 +162,7 @@ try {
   await context.close();
 
   // Phone: layout and touch controls.
-  const phoneContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+  const phoneContext = await browser.newContext({ locale: 'en-US', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
   const phone = await phoneContext.newPage();
   await phone.goto(server.url);
   await sleep(1000);
@@ -194,7 +195,7 @@ try {
   await phoneContext.close();
 
   // A failed download shows the error card, and Try again recovers.
-  const brokenContext = await browser.newContext();
+  const brokenContext = await browser.newContext({ locale: 'en-US' });
   const broken = await brokenContext.newPage();
   await broken.route('**/game/dailyred.gba.gz', (route) => route.fulfill({ status: 404, body: 'missing' }));
   await broken.goto(server.url);

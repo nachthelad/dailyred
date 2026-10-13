@@ -8,11 +8,13 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const GAME_DIR = join(ROOT, 'pokefirered');
+export const GAME_DIR = process.env.DAILYRED_GAME_DIR ? resolve(process.env.DAILYRED_GAME_DIR) : join(ROOT, 'pokefirered');
 export const ELF = join(GAME_DIR, 'pokefirered_modern.elf');
 
 const CHROME_PATHS = [
   process.env.CHROME_PATH,
+  'C:/Program Files/Google/Chrome/Application/chrome.exe',
+  'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/usr/bin/google-chrome',
   '/usr/bin/chromium',
@@ -35,10 +37,10 @@ export async function startServer() {
   return { url, close: () => server.kill() };
 }
 
-export async function launchBrowser() {
+export async function launchBrowser({ headless = true } = {}) {
   return chromium.launch({
     executablePath: findChrome(),
-    headless: true,
+    headless,
     args: ['--autoplay-policy=no-user-gesture-required', '--mute-audio'],
   });
 }
@@ -50,11 +52,11 @@ export async function launchBrowser() {
 export async function bootGame(page, baseUrl, { seed, daily = false, wins = 0, battles = 0 } = {}) {
   await page.goto(`${baseUrl}/__test__`);
   await page.setContent('<canvas id="screen" width="480" height="320" style="display:block"></canvas>');
-  await page.evaluate(async ({ seed, daily, wins, battles }) => {
+  await page.evaluate(async ({ seed, daily, wins, battles, language }) => {
     const { Nostalgist } = await import('/vendor/nostalgist.js');
     const { injectConfig } = await import('/rom-config.js');
     const { loadGameFiles } = await import('/game-files.js');
-    const files = await loadGameFiles();
+    const files = await loadGameFiles(undefined, language);
     const rom = seed ? injectConfig(files.rom, { seed, daily, wins, battles }) : files.rom;
     window.emu = await Nostalgist.launch({
       core: 'mgba',
@@ -64,7 +66,7 @@ export async function bootGame(page, baseUrl, { seed, daily = false, wins = 0, b
       resolveCoreWasm: () => files.coreWasm,
       retroarchConfig: { savestate_file_compression: false, savestate_thumbnail_enable: false },
     });
-  }, { seed, daily, wins, battles });
+  }, { seed, daily, wins, battles, language: process.env.DAILYRED_ROM_LANGUAGE || 'en' });
 }
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -129,7 +131,7 @@ export async function readMemory(page) {
 let symbolCache;
 export function symbols() {
   if (symbolCache) return symbolCache;
-  const nm = join(ROOT, '.toolchain/arm-none-eabi/bin/arm-none-eabi-nm');
+  const nm = join(ROOT, '.toolchain/arm-none-eabi/bin/arm-none-eabi-nm' + (process.platform === 'win32' ? '.exe' : ''));
   const out = execFileSync(existsSync(nm) ? nm : 'arm-none-eabi-nm', [ELF], { encoding: 'utf8', maxBuffer: 64 << 20 });
   symbolCache = new Map();
   for (const line of out.split('\n')) {

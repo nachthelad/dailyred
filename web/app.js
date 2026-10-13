@@ -6,6 +6,7 @@ import { Nostalgist } from './vendor/nostalgist.js';
 import { loadGameFiles } from './game-files.js';
 import { injectConfig, parseSeed } from './rom-config.js';
 import { createGameLink, PHASE, RESULT } from './game-link.js';
+import { t, getLanguage, setLanguage, applyLanguage } from './i18n.js';
 import {
   today, dailySeed, msUntilTomorrow, loadStats, resultFor, currentStreaks,
   markBattleStarted, recordResult, settleAbandonedGame,
@@ -15,6 +16,7 @@ const $ = (id) => document.getElementById(id);
 const app = document.querySelector('.app');
 const screen = $('screen');
 const ui = {
+  language: $('language'),
   play: $('play'),
   retry: $('retry'),
   sound: $('sound'),
@@ -72,6 +74,7 @@ function setState(state) {
   const playing = state === 'playing';
   ui.sound.disabled = !playing;
   ui.fullscreen.disabled = !playing || !document.fullscreenEnabled;
+  for (const button of ui.language.querySelectorAll('button')) button.disabled = state === 'loading' || playing;
 }
 
 // --- Title card ------------------------------------------------------------------
@@ -88,7 +91,7 @@ function renderTitle() {
   ui.play.hidden = Boolean(result);
   ui.played.hidden = !result;
   ui.practiceNote.hidden = !practiceSeed;
-  if (result) ui.playedResult.textContent = result === 'won' ? 'You beat RED today!' : 'RED won today.';
+  if (result) ui.playedResult.textContent = t(result === 'won' ? 'won' : 'lost');
   updateCountdown();
 }
 
@@ -104,7 +107,7 @@ function updateCountdown() {
     renderTitle();
     return;
   }
-  if (!ui.played.hidden) ui.playedNext.textContent = `Next battle in ${formatTime(msUntilTomorrow())}`;
+  if (!ui.played.hidden) ui.playedNext.textContent = t('next', { time: formatTime(msUntilTomorrow()) });
 }
 setInterval(() => {
   if (app.dataset.state === 'title') updateCountdown();
@@ -116,7 +119,7 @@ const megabytes = (n) => (n / 1048576).toFixed(1);
 
 function checkBrowser() {
   if (typeof WebAssembly !== 'object' || typeof DecompressionStream !== 'function') {
-    throw new Error("This browser can't run the game. Use a recent version of Chrome, Edge, Firefox or Safari.");
+    throw new Error(t('browser'));
   }
 }
 
@@ -142,12 +145,12 @@ async function startRun() {
     checkBrowser();
     stopEmulator();
     setState('loading');
-    ui.loadingText.textContent = 'Downloading the game';
+    ui.loadingText.textContent = t('downloading');
     ui.loadingDetail.textContent = '';
     const files = await loadGameFiles((loaded, total) => {
       ui.meter.style.width = total ? `${Math.min(100, (loaded / total) * 100)}%` : '50%';
-      ui.loadingDetail.textContent = total ? `${megabytes(loaded)} of ${megabytes(total)} MB` : `${megabytes(loaded)} MB`;
-    });
+      ui.loadingDetail.textContent = total ? t('progress', { loaded: megabytes(loaded), total: megabytes(total) }) : `${megabytes(loaded)} MB`;
+    }, getLanguage());
 
     runDate = today();
     stats = loadStats(); // another tab may have played meanwhile
@@ -161,7 +164,7 @@ async function startRun() {
       ? injectConfig(files.rom, { seed })
       : injectConfig(files.rom, { seed, wins: stats.wins, battles: stats.wins + stats.losses, daily: true });
 
-    ui.loadingText.textContent = 'Starting the emulator';
+    ui.loadingText.textContent = t('starting');
     ui.loadingDetail.textContent = '';
     ui.meter.style.width = '100%';
 
@@ -192,8 +195,8 @@ async function startRun() {
     console.error(err);
     stopEmulator();
     // fetch() rejects with a TypeError when the network itself fails.
-    const hint = err instanceof TypeError ? ' Check your connection and try again.' : '';
-    ui.errorText.textContent = `${err?.message || err}${hint}`;
+    const hint = err instanceof TypeError ? t('connection') : '';
+    ui.errorText.textContent = `${err?.localized || (getLanguage() === 'en' ? err?.message : t('startupError')) || t('startupError')}${hint}`;
     setState('error');
   } finally {
     starting = false;
@@ -257,7 +260,7 @@ onClick(ui.sound, () => {
 });
 
 function showMuted() {
-  ui.sound.textContent = muted ? 'Unmute' : 'Mute';
+  ui.sound.textContent = t(muted ? 'soundOn' : 'soundOff');
   ui.sound.setAttribute('aria-pressed', String(muted));
 }
 
@@ -267,7 +270,7 @@ onClick(ui.fullscreen, () => {
 });
 
 document.addEventListener('fullscreenchange', () => {
-  ui.fullscreen.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+  ui.fullscreen.textContent = t(document.fullscreenElement ? 'exitFullScreen' : 'fullScreen');
 });
 
 // Don't let arrow keys and space scroll the page while playing.
@@ -351,6 +354,16 @@ window.dailyRed = {
   get stats() { return { ...stats }; },
 };
 
+applyLanguage();
+ui.language.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-language]');
+  if (!button || starting || emu) return;
+  setLanguage(button.dataset.language);
+  button.blur();
+  renderTitle();
+  showMuted();
+  ui.fullscreen.textContent = t(document.fullscreenElement ? 'exitFullScreen' : 'fullScreen');
+});
 renderTitle();
 setState('title');
 showMuted();

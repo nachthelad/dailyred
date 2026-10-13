@@ -1,0 +1,28 @@
+Daily Red — Spanish adaptation / Adaptación al español
+====================================================
+
+Daily Red creado por / created by amoi-builds:
+https://github.com/amoi-builds/dailyred
+
+Adaptación al español por nachthelad:
+https://nachthelad.com.ar
+
+Textos y recursos gráficos base:
+SomeRandomSponge — Pokémon FireRed & LeafGreen Latino
+https://github.com/SomeRandomSponge/pokefireredlatino
+Commit: 24828c68b1d5a2a26a8232b623af5b43557823c6
+
+Créditos de ese proyecto: SomeRandomSponge; Juanjo / J2M2;
+Z-nogyroP; Kakarotto; Kantopia; InmortalKaktus; Cefer;
+los contribuidores de pret.
+Créditos originales completos:
+https://github.com/SomeRandomSponge/pokefireredlatino/blob/24828c68b1d5a2a26a8232b623af5b43557823c6/CR%C3%89DITOS.md
+
+Descripciones de movimientos: datos de PokéAPI, adaptados a FireRed
+y a las ventanas de GBA; correcciones y diálogos de esta adaptación.
+https://github.com/PokeAPI/pokeapi
+Commit: 81d20919845b6a445969b9265aab5cec6b04cece
+
+Pokémon y su contenido pertenecen a Nintendo, Creatures Inc. y GAME FREAK inc.
+Proyecto de fans gratuito y no oficial. Ver licenses.txt para el emulador,
+la fuente web y los demás componentes.

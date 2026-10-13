@@ -2,7 +2,7 @@
 //   node scripts/serve.mjs [port]      -> serves ./web on http://localhost:8080
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, isAbsolute, join, normalize, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('../web', import.meta.url)));
@@ -26,7 +26,10 @@ const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
     let path = normalize(join(root, decodeURIComponent(url.pathname)));
-    if (!path.startsWith(root)) throw Object.assign(new Error('forbidden'), { code: 'EACCES' });
+    const fromRoot = relative(root, path);
+    if (fromRoot === '..' || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) {
+      throw Object.assign(new Error('forbidden'), { code: 'EACCES' });
+    }
     if ((await stat(path)).isDirectory()) path = join(path, 'index.html');
     const body = await readFile(path);
     res.writeHead(200, {
@@ -38,6 +41,12 @@ const server = createServer(async (req, res) => {
     res.writeHead(err.code === 'EACCES' ? 403 : 404, { 'Content-Type': 'text/plain' });
     res.end('Not found');
   }
+});
+server.on('error', (error) => {
+  console.error(error.code === 'EADDRINUSE'
+    ? `Port ${port} is already in use. Stop your previous Daily Red server or choose another port.`
+    : error.message);
+  process.exit(1);
 });
 server.listen(port, () => {
   console.log(`Serving ${root} at http://localhost:${server.address().port}`);

@@ -15,47 +15,51 @@
   <main class="app" data-state="title">
     <header class="masthead">
       <h1 class="title">Daily Red</h1>
+      <div id="language" class="language-control" role="group" aria-label="Language" data-i18n-aria="language">
+        <button class="language-button" type="button" data-language="es" aria-label="Español" title="Español" aria-pressed="false"><img src="flags/es.svg" width="26" height="18" alt=""></button>
+        <button class="language-button" type="button" data-language="en" aria-label="English" title="English" aria-pressed="false"><img src="flags/en.svg" width="26" height="18" alt=""></button>
+      </div>
     </header>
 
-    <section class="console" id="console" aria-label="Game">
+    <section class="console" id="console" aria-label="Game" data-i18n-aria="game">
       <div class="bezel">
         <div class="screen" id="screen">
           <div class="card card-title">
             <div class="snow" aria-hidden="true"></div>
             <img class="red-sprite" src="game/red.png" width="64" height="64" alt="RED">
             <dl class="stats">
-              <div><dt>Wins</dt><dd id="stat-wins">0</dd></div>
-              <div><dt>Losses</dt><dd id="stat-losses">0</dd></div>
-              <div><dt>Win streak</dt><dd id="stat-win-streak">0</dd></div>
-              <div><dt>Day streak</dt><dd id="stat-day-streak">0</dd></div>
+              <div><dt data-i18n="wins">Wins</dt><dd id="stat-wins">0</dd></div>
+              <div><dt data-i18n="losses">Losses</dt><dd id="stat-losses">0</dd></div>
+              <div><dt data-i18n="winStreak">Win streak</dt><dd id="stat-win-streak">0</dd></div>
+              <div><dt data-i18n="dayStreak">Day streak</dt><dd id="stat-day-streak">0</dd></div>
             </dl>
-            <button class="button button-play" id="play" type="button">Play</button>
+            <button class="button button-play" id="play" type="button" data-i18n="play">Play</button>
             <div class="played" id="played" hidden>
               <p class="played-result" id="played-result"></p>
               <p class="played-next" id="played-next"></p>
             </div>
-            <p class="card-note" id="practice-note" hidden>Practice run: results aren't saved.</p>
+            <p class="card-note" id="practice-note" hidden data-i18n="practice">Practice run: results aren't saved.</p>
           </div>
           <div class="card card-loading" role="status" aria-live="polite">
-            <p class="card-heading" id="loading-text">Downloading the game</p>
+            <p class="card-heading" id="loading-text" data-i18n="downloading">Downloading the game</p>
             <div class="meter"><div class="meter-fill" id="meter"></div></div>
             <p class="card-note" id="loading-detail"></p>
           </div>
           <div class="card card-error" role="alert">
-            <p class="card-heading">The game didn't start</p>
+            <p class="card-heading" data-i18n="failed">The game didn't start</p>
             <p class="card-note" id="error-text"></p>
-            <button class="button button-play" id="retry" type="button">Try again</button>
+            <button class="button button-play" id="retry" type="button" data-i18n="retry">Try again</button>
           </div>
         </div>
       </div>
 
       <div class="toolbar">
         <button class="button button-quiet" id="sound" type="button" aria-pressed="false" disabled>Mute</button>
-        <button class="button button-quiet" id="fullscreen" type="button" disabled>Full screen</button>
+        <button class="button button-quiet" id="fullscreen" type="button" data-i18n="fullScreen" disabled>Full screen</button>
       </div>
 
-      <div class="pad" aria-label="Touch controls">
-        <div class="dpad" aria-label="Directional pad" role="group">
+      <div class="pad" aria-label="Touch controls" data-i18n-aria="touchControls">
+        <div class="dpad" aria-label="Directional pad" role="group" data-i18n-aria="dpad">
           <span class="dpad-arm dpad-up"></span>
           <span class="dpad-arm dpad-left"></span>
           <span class="dpad-arm dpad-center"></span>
@@ -74,20 +78,22 @@
     </section>
 
     <section class="guide">
-      <h2 class="guide-heading">Keyboard</h2>
+      <h2 class="guide-heading" data-i18n="keyboard">Keyboard</h2>
       <dl class="keys">
-        <div><dt><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd></dt><dd>Walk, move the cursor</dd></div>
-        <div><dt><kbd>X</kbd></dt><dd>A button: talk, confirm</dd></div>
-        <div><dt><kbd>Z</kbd></dt><dd>B button: back, cancel</dd></div>
-        <div><dt><kbd>Enter</kbd></dt><dd>Start: open the menu</dd></div>
-        <div><dt><kbd>Right Shift</kbd></dt><dd>Select</dd></div>
+        <div><dt><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd></dt><dd data-i18n="walk">Walk, move the cursor</dd></div>
+        <div><dt><kbd>X</kbd></dt><dd data-i18n="confirm">A button: talk, confirm</dd></div>
+        <div><dt><kbd>Z</kbd></dt><dd data-i18n="back">B button: back, cancel</dd></div>
+        <div><dt><kbd>Enter</kbd></dt><dd data-i18n="menu">Start: open the menu</dd></div>
+        <div><dt><kbd data-i18n="rightShift">Right Shift</kbd></dt><dd data-i18n="select">Select</dd></div>
       </dl>
-      <p class="guide-note">On a phone or tablet, use the buttons under the screen.</p>
+      <p class="guide-note" data-i18n="touch">On a phone or tablet, use the buttons under the screen.</p>
     </section>
 
     <footer class="footer">
-      <p>Daily Red is a free, unofficial fan project. It isn't affiliated with or endorsed by Nintendo, Creatures Inc., GAME FREAK inc. or The Pokémon Company. Pokémon and all game content are © Nintendo, Creatures Inc. and GAME FREAK inc.</p>
-      <p><a href="licenses.txt">Licenses</a> · <a href="https://github.com/amoi-builds/dailyred">Source</a></p>
+      <p><span data-i18n="creator">Daily Red created by</span> <a href="https://github.com/amoi-builds/dailyred">amoi-builds</a>.</p>
+      <p><span data-i18n="adaptation">Spanish adaptation by</span> <a href="https://nachthelad.com.ar">nachthelad · nachthelad.com.ar</a>.</p>
+      <p data-i18n="disclaimer">Daily Red is a free, unofficial fan project. It isn't affiliated with or endorsed by Nintendo, Creatures Inc., GAME FREAK inc. or The Pokémon Company. Pokémon and all game content are © Nintendo, Creatures Inc. and GAME FREAK inc.</p>
+      <p><a href="licenses.txt" data-i18n="licenses">Licenses</a> · <a href="https://github.com/nachthelad/dailyred" data-i18n="source">Source</a> · <a href="translation-credits.txt" data-i18n="credits">Translation credits</a></p>
     </footer>
   </main>
 </body>

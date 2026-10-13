@@ -66,7 +66,14 @@ a { color: inherit; text-underline-offset: 3px; }
 
 /* Masthead ----------------------------------------------------------------- */
 
-.masthead { margin-bottom: 24px; }
+.masthead { margin-bottom: 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.language-control { display: flex; align-items: center; gap: 4px; }
+.language-button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; background: transparent; border: 2px solid transparent; border-radius: 8px; cursor: pointer; touch-action: manipulation; }
+.language-button img { display: block; border-radius: 2px; }
+.language-button[aria-pressed="true"] { border-color: var(--crimson); }
+.language-button:hover:not(:disabled) { background: var(--line); }
+.language-button:disabled { opacity: .65; cursor: default; }
+.stats dt { max-width: 12ch; }
 
 .title {
   margin: 0;
@@ -382,6 +389,9 @@ a { color: inherit; text-underline-offset: 3px; }
 
 .console:fullscreen .toolbar { justify-content: center; }
 .console:fullscreen .button-quiet { border-color: #3a4c5e; }
+
+/* The controls need their own surface: fullscreen uses the bezel color too. */
+.console:fullscreen .pad { --bezel: #526a80; }
 
 @media (pointer: coarse) {
   .console:fullscreen .bezel { width: min(100%, calc((100vh - 360px) * 1.5)); }

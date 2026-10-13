@@ -14,4 +14,8 @@
 
 /tests/node_modules/
 /tests/output/
+/output/
 .DS_Store
+/.codex-remote-attachments/
+.env*
+.vercel/

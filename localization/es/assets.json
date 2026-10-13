@@ -1,0 +1,57 @@
+[
+  {
+    "sha256": "52d52bda1af049fe684586bf30af3839a7f1bf81cec75a551b0b2cfac3421ee5",
+    "file": "assets/trainer_memo.bin",
+    "target": "graphics/summary_screen/page_info.bin"
+  },
+  {
+    "sha256": "8f0fdb469d3d22671187292e7349cd16372b7a1a6347b266a0298ae294f3e2b1",
+    "file": "assets/dex_caught_pokeball_and_pokemon_types.png",
+    "target": "graphics/interface/menu_info.png"
+  },
+  {
+    "sha256": "99c0760be1220065a5386b1b716e00a1a67b52b92efb5f8f16849dcb5a2b7eec",
+    "file": "assets/trainer_memo_4.bin",
+    "target": "graphics/summary_screen/page_moves_info.bin"
+  },
+  {
+    "sha256": "4557d059f0c941cbf6cbf4740acfa7b71891b8f9ec30bae4993952703b28f642",
+    "file": "assets/trainer_memo_5.bin",
+    "target": "graphics/summary_screen/page_egg.bin"
+  },
+  {
+    "sha256": "f362de6e59e0b685587adb77c06f2c8fbbf73f5c120d0f36933f0dad3cc26062",
+    "file": "assets/trainer_memo.png",
+    "target": "graphics/summary_screen/bg.png"
+  },
+  {
+    "sha256": "963a739e9fa51caced134092314ca8980eb5766c3c7a59c85403d9a5cdb4b25a",
+    "file": "assets/status_ailment_icons.png",
+    "target": "graphics/summary_screen/status_ailment_icons.png"
+  },
+  {
+    "sha256": "219a9925de37201c7cc46a10820460ea113ceef2c7d6e29c89679a3cc6912628",
+    "file": "assets/trainer_memo_2.bin",
+    "target": "graphics/summary_screen/page_skills.bin"
+  },
+  {
+    "sha256": "3940a80d2c121972a1f88b89dc1ee306c8bd98c015a32b768257cab5c37b2d00",
+    "file": "assets/status_icons.png",
+    "target": "graphics/interface/status_icons.png"
+  },
+  {
+    "sha256": "49be068728dab5fbc17f304946798cbb51803d25c793168ba54c5b8acd8afc3e",
+    "file": "assets/trainer_memo_3.bin",
+    "target": "graphics/summary_screen/page_moves.bin"
+  },
+  {
+    "file": "assets/summary_hp_bar.png",
+    "target": "graphics/summary_screen/hp_bar.png",
+    "sha256": "c262a2dba57a89ef6bf9a87b65a00d88269b93e9b408b5c43213bc04b29069e9"
+  },
+  {
+    "file": "assets/healthbox_elements.png",
+    "target": "graphics/battle_interface/healthbox_elements.png",
+    "sha256": "e1ff0ec6ac0e4b76a0345af0af53ea994e36b836dc708e81b728248ba3f29286"
+  }
+]

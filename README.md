@@ -1,5 +1,17 @@
 # Daily Red
 
+## Adaptación al español por nachthelad
+
+Fork de [Daily Red, creado por amoi-builds](https://github.com/amoi-builds/dailyred), adaptado para el público hispanohablante por [nachthelad · nachthelad.com.ar](https://nachthelad.com.ar).
+
+**[Jugar en español](https://daily-red-es.vercel.app/?lang=es)** · [Modo práctica](https://daily-red-es.vercel.app/?seed=42&lang=es) · [Preparar en Windows](LEEME-WINDOWS.md)
+
+Incluye selección de idioma con banderas, interfaz web y textos del modo Daily Red en español, además de preparación y compilación en Windows. Se conserva el modo en inglés y la misma generación de equipos y mecánica de combate. La traducción se centra en los combates, menús, movimientos, habilidades, objetos y mensajes utilizados por Daily Red; no es una traducción completa de la campaña de FireRed.
+
+Los créditos de traducciones comunitarias y recursos utilizados están en [localization/es/SOURCE-CREDITS.md](localization/es/SOURCE-CREDITS.md). Este repositorio contiene código, parches y recursos de la adaptación: las ROM compiladas, emulador descargado, herramientas y cachés quedan fuera de GitHub y se generan localmente.
+
+La documentación original continúa a continuación.
+
 A daily Pokémon battle in the browser, like Wordle: once a day you press
 **Play**, get the day's six random level 100 Pokémon from Generations 1–3
 (everyone gets the same team that day), and climb to RED at the top of the
@@ -21,6 +33,12 @@ reimplemented in JavaScript.
 - [Running it locally](#running-it-locally)
 - [Copyright and licenses](#copyright-and-licenses)
 - [Known limitations](#known-limitations)
+
+## Quick start (Windows)
+
+See [LEEME-WINDOWS.md](LEEME-WINDOWS.md) for the local Windows build, **Jugar.cmd**, and Spanish instructions. Tools, downloads, caches and working temporary files stay inside the project on D:.
+
+The local adaptation includes an **Español / English** selector for both the site and the game. Credits: Daily Red by [amoi-builds](https://github.com/amoi-builds/dailyred); Spanish adaptation by [nachthelad · nachthelad.com.ar](https://nachthelad.com.ar). See [localization sources](localization/README.md) and [bilingual verification](VERIFICACION-BILINGUE.md).
 
 ## Quick start (macOS)
 
@@ -365,7 +383,8 @@ footer links to it.
   suspended unless it begins during a click, so the game resumes it on the
   next key press or tap.
 - **Tested environment:** macOS with Google Chrome (headless, desktop and
-  phone emulation). Not yet tried on Safari, Firefox or real phones.
+  phone emulation), plus the [local Windows verification](VERIFICACION-WINDOWS.md).
+  Not yet tried on Safari, Firefox or real phones.
 - The L/R buttons still open FireRed's built-in help, which describes the
   normal game.
 

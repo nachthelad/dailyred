@@ -1,27 +1,34 @@
 // Downloads the ROM and the emulator core once per visit and keeps them in
 // memory, so starting a new run only has to restart the emulator.
 
+import { t } from './i18n.js';
 const FILES = {
   rom: 'game/dailyred.gba.gz',
   coreJs: 'vendor/mgba_libretro.js',
   coreWasm: 'vendor/mgba_libretro.wasm',
 };
 
-let cached = null;
+const cached = new Map();
 
 // onProgress(loadedBytes, totalBytes) — totalBytes is 0 when unknown.
-export function loadGameFiles(onProgress = () => {}) {
-  cached ??= download(onProgress).catch((err) => {
-    cached = null; // allow a retry
+export function loadGameFiles(onProgress = () => {}, language = 'en') {
+  if (!['en', 'es'].includes(language)) throw new Error('Unsupported game language');
+  if (!cached.has(language)) cached.set(language, download(onProgress, language).catch((err) => {
+    cached.delete(language); // allow a retry
     throw err;
-  });
-  return cached;
+  }));
+  return cached.get(language);
 }
 
-async function download(onProgress) {
-  const responses = await Promise.all(Object.values(FILES).map(async (url) => {
+async function download(onProgress, language) {
+  const files = { ...FILES, rom: language === 'es' ? 'game/dailyred-es.gba.gz' : FILES.rom };
+  const responses = await Promise.all(Object.values(files).map(async (url) => {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Couldn't download ${url} (HTTP ${res.status}).`);
+    if (!res.ok) {
+      const error = new Error(`Couldn't download ${url} (HTTP ${res.status}).`);
+      error.localized = t('downloadError', { file: url, status: res.status }, language);
+      throw error;
+    }
     return res;
   }));
 

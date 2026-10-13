@@ -1,6 +1,10 @@
 Daily Red: third-party software and content
 ===========================================
 
+Spanish adaptation / Adaptación al español
+  nachthelad — https://nachthelad.com.ar
+  Translation sources and contributors: see translation-credits.txt.
+
 Pokémon FireRed (the ROM in game/)
   Built from pret/pokefirered (https://github.com/pret/pokefirered), a
   community decompilation of Pokémon FireRed, with Daily Red's changes.
