@@ -54,7 +54,13 @@
       </div>
 
       <div class="toolbar">
-        <button class="button button-quiet" id="sound" type="button" aria-pressed="false" disabled>Mute</button>
+        <button class="button button-quiet button-icon" id="sound" type="button" aria-label="Mute" title="Mute" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M3 9h4V7h2V5h3v14H9v-2H7v-2H3z"/>
+            <path class="sound-on" fill="none" stroke="currentColor" stroke-width="2" d="M15 9h2v6h-2m4-9h2v12h-2"/>
+            <path class="sound-off" fill="none" stroke="currentColor" stroke-width="2" d="m16 9 6 6m0-6-6 6"/>
+          </svg>
+        </button>
         <button class="button button-quiet" id="fullscreen" type="button" data-i18n="fullScreen" disabled>Full screen</button>
       </div>
 

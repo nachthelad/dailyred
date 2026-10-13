@@ -76,8 +76,7 @@ if (NativeAudioContext) {
 function setState(state) {
   app.dataset.state = state;
   const playing = state === 'playing';
-  ui.sound.disabled = !playing;
-  ui.fullscreen.disabled = !playing || !document.fullscreenEnabled;
+  showFullscreen();
   for (const button of ui.language.querySelectorAll('button')) button.disabled = state === 'loading' || playing;
 }
 
@@ -256,26 +255,29 @@ onClick(ui.play, startRun);
 onClick(ui.retry, startRun);
 
 onClick(ui.sound, () => {
-  if (!emu) return;
-  emu.sendCommand('MUTE');
+  emu?.sendCommand('MUTE');
   muted = !muted;
   session.set('dailyred-muted', muted ? '1' : '0');
   showMuted();
 });
 
 function showMuted() {
-  ui.sound.textContent = t(muted ? 'soundOn' : 'soundOff');
+  const label = t(muted ? 'soundOn' : 'soundOff');
+  ui.sound.setAttribute('aria-label', label);
+  ui.sound.title = label;
   ui.sound.setAttribute('aria-pressed', String(muted));
 }
 
 onClick(ui.fullscreen, () => {
-  if (document.fullscreenElement) document.exitFullscreen();
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   else $('console').requestFullscreen().catch(() => {});
 });
 
-document.addEventListener('fullscreenchange', () => {
+function showFullscreen() {
   ui.fullscreen.textContent = t(document.fullscreenElement ? 'exitFullScreen' : 'fullScreen');
-});
+  ui.fullscreen.disabled = !document.fullscreenEnabled && !document.fullscreenElement;
+}
+document.addEventListener('fullscreenchange', showFullscreen);
 
 // Don't let arrow keys and space scroll the page while playing.
 window.addEventListener('keydown', (event) => {
@@ -366,7 +368,7 @@ ui.language.addEventListener('click', (event) => {
   button.blur();
   renderTitle();
   showMuted();
-  ui.fullscreen.textContent = t(document.fullscreenElement ? 'exitFullScreen' : 'fullScreen');
+  showFullscreen();
 });
 renderTitle();
 setState('title');

@@ -286,6 +286,11 @@ a { color: inherit; text-underline-offset: 3px; }
 
 .button-quiet:not(:disabled):hover { border-color: var(--muted); }
 
+.button-icon { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; padding: 0; }
+.button-icon svg { display: block; }
+#sound .sound-off, #sound[aria-pressed="true"] .sound-on { display: none; }
+#sound[aria-pressed="true"] .sound-off { display: block; }
+
 /* Touch controls (phones and tablets only) ---------------------------------- */
 
 .pad {
@@ -463,5 +468,5 @@ kbd {
   .card-heading { font-size: 20px; }
   .card-note { font-size: 13px; }
   .card-error .button-play { padding: 12px 32px; font-size: 22px; }
-  .toolbar .button { padding: 10px 14px; font-size: 16px; }
+  .toolbar .button:not(.button-icon) { padding: 10px 14px; font-size: 16px; }
 }
