@@ -38,7 +38,7 @@ reimplemented in JavaScript.
 
 See [LEEME-WINDOWS.md](LEEME-WINDOWS.md) for the local Windows build, **Jugar.cmd**, and Spanish instructions. Tools, downloads, caches and working temporary files stay inside the project on D:.
 
-The local adaptation includes an **Español / English** selector for both the site and the game. Credits: Daily Red by [amoi-builds](https://github.com/amoi-builds/dailyred); Spanish adaptation by [nachthelad · nachthelad.com.ar](https://nachthelad.com.ar). See [localization sources](localization/README.md) and [bilingual verification](VERIFICACION-BILINGUE.md).
+The adaptation includes compact **Español / English** flag buttons for both the site and the game. Credits: Daily Red by [amoi-builds](https://github.com/amoi-builds/dailyred); Spanish adaptation by [nachthelad · nachthelad.com.ar](https://nachthelad.com.ar). See [localization sources](localization/README.md) and [Windows build and testing instructions](LEEME-WINDOWS.md).
 
 ## Quick start (macOS)
 
@@ -382,9 +382,9 @@ footer links to it.
 - **Audio** can't be checked by the headless tests. Browsers start audio
   suspended unless it begins during a click, so the game resumes it on the
   next key press or tap.
-- **Tested environment:** macOS with Google Chrome (headless, desktop and
-  phone emulation), plus the [local Windows verification](VERIFICACION-WINDOWS.md).
-  Not yet tried on Safari, Firefox or real phones.
+- **Tested environment:** Google Chrome on macOS and Windows, including
+  phone emulation. See [Windows testing instructions](LEEME-WINDOWS.md).
+  Safari and Firefox have not been verified.
 - The L/R buttons still open FireRed's built-in help, which describes the
   normal game.
 

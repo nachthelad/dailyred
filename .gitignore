@@ -19,3 +19,15 @@
 /.codex-remote-attachments/
 .env*
 .vercel/
+
+# Local work notes and retired tunnel/debug helpers.
+/docs/superpowers/
+/VERIFICACION-WINDOWS.md
+/VERIFICACION-BILINGUE.md
+/ACCESO-PUBLICO.md
+/Publicar-temporal.cmd
+/Cerrar-publico.cmd
+/scripts/public-windows.ps1
+/scripts/stop-public-windows.ps1
+/tests/public-smoke.mjs
+/tests/verify-windows.mjs

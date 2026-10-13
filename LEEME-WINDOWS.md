@@ -73,11 +73,9 @@ npm.cmd run bilingual:en --prefix tests
 
 `CHROME_PATH` permite elegir otro Chrome. No se descargan navegadores. Los temporales de las pruebas y la caché npm se redirigen a `.toolchain` en D:; salidas en `tests/output`.
 
-Con el servidor en 8080 y el Chrome del juego cerrado, `node tests\verify-windows.mjs` abre una práctica visible en inglés, comprueba el equipo, camina hasta RED e intenta un turno normal. Guarda capturas y un JSON en `output/playwright`; deja Chrome abierto hasta que lo cierres.
-
 Para la prueba visible bilingüe se puede usar `node tests\bilingual.mjs es --headed`: prepara su propio servidor y usa un perfil temporal en D:. Las capturas quedan en `tests/output/bilingual-es`. También valida la versión inglesa, la igualdad del equipo de semilla 42, los límites diarios y errores de descarga traducidos.
 
-Las pruebas originales `smoke`/`site` fuerzan algunos resultados modificando RAM para verificar el cierre y las estadísticas. La comprobación visible `verify-windows` sólo lee RAM y usa botones normales.
+Las pruebas originales `smoke`/`site` fuerzan algunos resultados modificando RAM para verificar el cierre y las estadísticas. Las pruebas bilingües comprueban el equipo y el inicio de la batalla leyendo RAM y usando controles normales.
 
 ## Archivos y espacio
 
@@ -86,10 +84,8 @@ Las pruebas originales `smoke`/`site` fuerzan algunos resultados modificando RAM
 - `web/vendor` y `web/game`: archivos locales del emulador y juego.
 - `output/playwright` y `tests/output`: evidencias.
 
-Los archivos generados están ignorados por Git. No se publican ni se suben ROM, fuentes descargadas o herramientas. La copia previa en C: se conserva.
+Los archivos generados están ignorados por Git. No se suben a GitHub las ROM, fuentes descargadas ni herramientas. El sitio en Vercel sirve los archivos compilados necesarios para jugar.
 
 Los scripts sólo cambian variables de entorno de su propio proceso. `ExecutionPolicy Bypass` se aplica a esa ejecución, sin modificar la política global. Node y Chrome siguen usando sus instalaciones existentes en C:; Windows, antivirus y componentes del sistema pueden mantener registros/cachés propios fuera del proyecto.
-
-El resultado medido de esta ejecución se registra en `VERIFICACION-WINDOWS.md`.
 
 Referencias: [Daily Red](https://github.com/amoi-builds/dailyred), [instalación de pret en el commit fijado](https://github.com/pret/pokefirered/blob/037335f4c725d7c9aecdac87066f2002b4bd7e14/INSTALL.md), [MSYS2](https://www.msys2.org/docs/installer/).
