@@ -4,7 +4,7 @@
 
 Fork de [Daily Red, creado por amoi-builds](https://github.com/amoi-builds/dailyred), adaptado para el público hispanohablante por [nachthelad · nachthelad.com.ar](https://nachthelad.com.ar).
 
-**[Jugar en español](https://daily-red-es.vercel.app/?lang=es)** · [Modo práctica](https://daily-red-es.vercel.app/?seed=42&lang=es) · [Preparar en Windows](LEEME-WINDOWS.md)
+**[Jugar en español](https://daily-red-es.vercel.app/?lang=es)** · [Preparar en Windows](LEEME-WINDOWS.md)
 
 Incluye selección de idioma con banderas, interfaz web y textos del modo Daily Red en español, además de preparación y compilación en Windows. Se conserva el modo en inglés y la misma generación de equipos y mecánica de combate. La traducción se centra en los combates, menús, movimientos, habilidades, objetos y mensajes utilizados por Daily Red; no es una traducción completa de la campaña de FireRed.
 
@@ -110,9 +110,9 @@ file server works without special headers. Everything loads from `web/vendor/`.
 - **Without the website** (seed 0, e.g. the ROM in a desktop emulator): the
   normal intro and title screen appear, pressing Start seeds the game the way
   vanilla FireRed does, and after each battle a new team arrives.
-- **`?seed=1234`** in the URL starts a practice run for testing: that seed's
-  team, no daily limit, nothing saved, and a new team after each battle. It
-  isn't shown anywhere in the UI.
+- **Development practice** is available only on local loopback hosts for
+  testing. The published website ignores custom practice seeds and always
+  uses the daily challenge.
 
 ### Game flow and the files involved
 
@@ -324,11 +324,11 @@ them quick and deterministic. Screenshots of every step are saved in
 a fresh visitor, a win (stats, locked until tomorrow, countdown, survives a
 reload), the same team in a second browser that day, a loss the next day,
 leaving mid-battle (counts as a loss), a missed day (streaks reset), and a
-practice run (`?seed=`, not recorded). It also checks the 3× (720×480)
+local practice run (not recorded). It also checks the 3× (720×480)
 screen, RED's sprite, the phone layout and touch d-pad, and the download-error
 screen with "Try again".
 
-**Checking by hand:** open `http://localhost:8080/?seed=42` for a practice run
+**Checking by hand:** use `Jugar.cmd -Practice` on Windows for a local practice run
 (nothing saved, no daily limit). To reset your daily stats, run
 `localStorage.removeItem('dailyred-stats')` in the browser console.
 

@@ -1,17 +1,56 @@
 // Stage only browser assets; never upload the repository or toolchain.
-import { cpSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { cpSync, lstatSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync, existsSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 const root = resolve(import.meta.dirname, '..');
 const stage = join(root, '.toolchain/vercel-site');
+// Check the exact workspace destination before removing obsolete staged files.
+if (relative(root, resolve(stage)) !== join('.toolchain', 'vercel-site')) throw new Error('Unsafe staging destination');
+for (const directory of [join(root, '.toolchain'), stage]) {
+  if (existsSync(directory) && lstatSync(directory).isSymbolicLink()) throw new Error('Staging symlinks are not allowed');
+}
 mkdirSync(stage, { recursive: true });
-for (const entry of readdirSync(join(root, 'web'))) cpSync(join(root, 'web', entry), join(stage, entry), { recursive: true });
-writeFileSync(join(stage, 'vercel.json'), JSON.stringify({ version: 2, framework: null, buildCommand: '', outputDirectory: '.', headers: [{ source: '/game/(.*).gba.gz', headers: [{ key: 'Content-Type', value: 'application/octet-stream' }] }] }, null, 2));
+for (const name of readdirSync(stage)) {
+  if (name !== '.vercel') rmSync(join(stage, name), { recursive: true, force: true });
+}
+const assets = [
+  'app.js', 'daily.js', 'favicon.svg', 'game-files.js', 'game-link.js', 'i18n.js',
+  'index.html', 'licenses.txt', 'rom-config.js', 'style.css', 'translation-credits.txt',
+  'flags/es.svg', 'flags/en.svg', 'game/dailyred-es.gba.gz', 'game/dailyred.gba.gz', 'game/red.png',
+  'vendor/mgba_libretro.js', 'vendor/mgba_libretro.wasm', 'vendor/nostalgist.js',
+  'vendor/nostalgist.LICENSE.txt', 'vendor/pixelify-sans.OFL.txt', 'vendor/pixelify-sans.woff2',
+];
+const web = join(root, 'web');
+for (const name of assets) {
+  const source = join(web, name);
+  for (let path = source; path !== web; path = dirname(path)) {
+    if (lstatSync(path).isSymbolicLink()) throw new Error(`Asset symlinks are not allowed: ${name}`);
+  }
+  mkdirSync(dirname(join(stage, name)), { recursive: true });
+  cpSync(source, join(stage, name));
+}
+writeFileSync(join(stage, '.vercelignore'), '.env*\n.git\n.gitignore\n.vercel\n');
+// Nostalgist uses new Function for dynamic core imports; unsafe-eval is
+// necessary for the pinned vendor version. Inline scripts remain disallowed.
+const csp = "default-src 'self'; script-src 'self' blob: 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' blob:; worker-src 'self' blob:; media-src 'self' blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
+writeFileSync(join(stage, 'vercel.json'), JSON.stringify({
+  version: 2, framework: null, buildCommand: '', outputDirectory: '.',
+  headers: [
+    { source: '/(.*)', headers: [
+      { key: 'Content-Security-Policy', value: csp },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'X-Frame-Options', value: 'DENY' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+    ] },
+    { source: '/game/(.*).gba.gz', headers: [{ key: 'Content-Type', value: 'application/octet-stream' }] },
+  ],
+}, null, 2));
 const files = [];
 function walk(dir, prefix = '') {
   for (const name of readdirSync(dir)) {
-    if (name === '.vercel' || name === '.gitignore') continue;
+    if (name.startsWith('.')) continue;
     const file = join(dir, name), path = prefix + name;
     if (statSync(file).isDirectory()) walk(file, path + '/');
     else files.push({ path, bytes: statSync(file).size, sha256: createHash('sha256').update(readFileSync(file)).digest('hex') });

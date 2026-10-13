@@ -4,7 +4,7 @@
 // keeps the stats (see daily.js).
 import { Nostalgist } from './vendor/nostalgist.js';
 import { loadGameFiles } from './game-files.js';
-import { injectConfig, parseSeed } from './rom-config.js';
+import { injectConfig, practiceSeedFor } from './rom-config.js';
 import { createGameLink, PHASE, RESULT } from './game-link.js';
 import { t, getLanguage, setLanguage, applyLanguage } from './i18n.js';
 import {
@@ -41,9 +41,13 @@ const session = {
   set(key, value) { try { sessionStorage.setItem(key, value); } catch { /* not remembered */ } },
 };
 
-// ?seed=123 starts a practice run with that team, for testing: results
-// aren't saved, there's no daily limit, and the game keeps dealing new teams.
-const practiceSeed = parseSeed(new URLSearchParams(location.search).get('seed'));
+// Custom practice seeds are restricted to local development, never public hosts.
+const pageUrl = new URL(location.href);
+const practiceSeed = practiceSeedFor(pageUrl);
+if (!['localhost', '127.0.0.1', '[::1]'].includes(pageUrl.hostname) && pageUrl.searchParams.has('seed')) {
+  pageUrl.searchParams.delete('seed');
+  history.replaceState(null, '', pageUrl);
+}
 
 let stats = settleAbandonedGame(loadStats());
 let emu = null;

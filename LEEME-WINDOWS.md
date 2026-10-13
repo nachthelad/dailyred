@@ -19,7 +19,7 @@ cd D:\Cosas\Dev\daily-red
 .\Jugar.cmd -Practice
 ```
 
-También podés abrir <http://localhost:8080/?seed=42> en la ventana de Chrome del juego.
+La práctica está disponible sólo en el servidor local. El sitio publicado en Vercel siempre usa el desafío diario e ignora semillas de práctica.
 
 Flechas: moverse. **X**: hablar/confirmar. **Z**: volver. **Enter**: menú y equipo. Subí las escaleras y hablá con RED.
 

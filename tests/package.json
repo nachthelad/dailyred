@@ -10,7 +10,8 @@
     "teams": "node teams.mjs",
     "bilingual:es": "node bilingual.mjs es",
     "bilingual:en": "node bilingual.mjs en",
-    "localization": "node ../scripts/localize-rom.mjs --check"
+    "localization": "node ../scripts/localize-rom.mjs --check",
+    "security": "node security.mjs"
   },
   "devDependencies": {
     "playwright-core": "1.56.1"

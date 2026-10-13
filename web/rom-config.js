@@ -42,3 +42,9 @@ export function parseSeed(text) {
   const seed = Number(text);
   return seed >= 1 && seed <= 0xFFFFFFFF ? seed : null;
 }
+
+// Development practice is available only on local loopback hosts.
+export function practiceSeedFor(url) {
+  return ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
+    ? parseSeed(url.searchParams.get('seed')) : null;
+}
