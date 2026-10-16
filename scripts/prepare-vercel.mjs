@@ -33,23 +33,11 @@ for (const name of assets) {
   cpSync(source, join(stage, name));
 }
 writeFileSync(join(stage, '.vercelignore'), '.env*\n.git\n.gitignore\n.vercel\n');
-// Nostalgist uses new Function for dynamic core imports; unsafe-eval is
-// necessary for the pinned vendor version. Inline scripts remain disallowed.
-const csp = "default-src 'self'; script-src 'self' blob: 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' blob:; worker-src 'self' blob:; media-src 'self' blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
+// Keep security headers identical for Git builds and manually staged uploads.
+const { headers } = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'));
 writeFileSync(join(stage, 'vercel.json'), JSON.stringify({
   version: 2, framework: null, buildCommand: '', outputDirectory: '.',
-  headers: [
-    { source: '/(.*)', headers: [
-      { key: 'Content-Security-Policy', value: csp },
-      { key: 'X-Content-Type-Options', value: 'nosniff' },
-      { key: 'X-Frame-Options', value: 'DENY' },
-      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-      { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
-    ] },
-    { source: '/game/(.*).gba.gz', headers: [{ key: 'Content-Type', value: 'application/octet-stream' }] },
-    { source: '/manifest.webmanifest', headers: [{ key: 'Content-Type', value: 'application/manifest+json' }] },
-    { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache' }] },
-  ],
+  headers,
 }, null, 2));
 const files = [];
 function walk(dir, prefix = '') {
