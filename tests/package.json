@@ -12,7 +12,8 @@
     "bilingual:en": "node bilingual.mjs en",
     "localization": "node ../scripts/localize-rom.mjs --check",
     "security": "node security.mjs",
-    "toolbar": "node toolbar.mjs"
+    "toolbar": "node toolbar.mjs",
+    "pwa": "node pwa.mjs"
   },
   "devDependencies": {
     "playwright-core": "1.56.1"

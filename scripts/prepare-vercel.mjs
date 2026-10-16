@@ -15,6 +15,8 @@ for (const name of readdirSync(stage)) {
   if (name !== '.vercel') rmSync(join(stage, name), { recursive: true, force: true });
 }
 const assets = [
+  'pwa.js', 'sw.js', 'manifest.webmanifest',
+  'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',
   'app.js', 'daily.js', 'favicon.svg', 'game-files.js', 'game-link.js', 'i18n.js',
   'index.html', 'licenses.txt', 'rom-config.js', 'style.css', 'translation-credits.txt',
   'flags/es.svg', 'flags/en.svg', 'game/dailyred-es.gba.gz', 'game/dailyred.gba.gz', 'game/red.png',
@@ -45,6 +47,8 @@ writeFileSync(join(stage, 'vercel.json'), JSON.stringify({
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
     ] },
     { source: '/game/(.*).gba.gz', headers: [{ key: 'Content-Type', value: 'application/octet-stream' }] },
+    { source: '/manifest.webmanifest', headers: [{ key: 'Content-Type', value: 'application/manifest+json' }] },
+    { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache' }] },
   ],
 }, null, 2));
 const files = [];

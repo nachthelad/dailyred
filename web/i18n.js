@@ -1,5 +1,9 @@
 const messages = {
   en: {
+    install: 'Install Daily Red', close: 'Close',
+    installHint: 'Keep Daily Red on your home screen. Install to play in its own window.',
+    installIos: 'To install: open in Safari, tap Share, then Add to Home Screen. If offered, enable Open as Web App.',
+    installMenu: 'To install, open your browser menu and look for Install app or Add to Home Screen. If unavailable, try Chrome, Edge or Safari.',
     language: 'Language', languageHint: 'Choose before playing. The game language stays fixed during a run.',
     wins: 'Wins', losses: 'Losses', winStreak: 'Win streak', dayStreak: 'Day streak', play: 'Play', retry: 'Try again',
     practice: "Practice run: results aren't saved.", game: 'Game', downloading: 'Downloading the game',
@@ -17,6 +21,10 @@ const messages = {
     description: 'One Pokémon battle a day: six random level 100 Pokémon against RED at the top of the mountain.',
   },
   es: {
+    install: 'Instalar Daily Red', close: 'Cerrar',
+    installHint: 'Tené Daily Red en tu pantalla de inicio. Instalalo para jugar en su propia ventana.',
+    installIos: 'Para instalar: abrí en Safari, tocá Compartir y Agregar a inicio. Si aparece, activá Abrir como app web.',
+    installMenu: 'Para instalar, abrí el menú del navegador y buscá Instalar app o Agregar a inicio. Si no aparece, probá Chrome, Edge o Safari.',
     language: 'Idioma', languageHint: 'Elige antes de jugar. El idioma del juego se mantiene durante la partida.',
     wins: 'Victorias', losses: 'Derrotas', winStreak: 'Racha de victorias', dayStreak: 'Días seguidos', play: 'Jugar', retry: 'Reintentar',
     practice: 'Modo práctica: los resultados no se guardan.', game: 'Juego', downloading: 'Descargando el juego',

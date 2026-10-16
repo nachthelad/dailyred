@@ -7,6 +7,7 @@ import { loadGameFiles } from './game-files.js';
 import { injectConfig, practiceSeedFor } from './rom-config.js';
 import { createGameLink, PHASE, RESULT } from './game-link.js';
 import { t, getLanguage, setLanguage, applyLanguage } from './i18n.js';
+import { setupPwa } from './pwa.js';
 import {
   today, dailySeed, msUntilTomorrow, loadStats, resultFor, currentStreaks,
   markBattleStarted, recordResult, settleAbandonedGame,
@@ -58,6 +59,7 @@ let battleSeen = false;
 let muted = session.get('dailyred-muted') === '1';
 let starting = false;
 let titleDate = null;
+const pwa = setupPwa();
 
 // RetroArch opens a Web Audio context for each emulator and never closes it,
 // so a restart would leave one running (and browsers cap how many a page can
@@ -369,6 +371,7 @@ ui.language.addEventListener('click', (event) => {
   renderTitle();
   showMuted();
   showFullscreen();
+  pwa.refresh();
 });
 renderTitle();
 setState('title');

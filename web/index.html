@@ -6,6 +6,9 @@
   <title>Daily Red</title>
   <meta name="description" content="One Pokémon battle a day: six random level 100 Pokémon against RED at the top of the mountain.">
   <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#d3202b">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="vendor/pixelify-sans.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
@@ -15,11 +18,21 @@
   <main class="app" data-state="title">
     <header class="masthead">
       <h1 class="title">Daily Red</h1>
+      <div class="header-actions">
       <div id="language" class="language-control" role="group" aria-label="Language" data-i18n-aria="language">
         <button class="language-button" type="button" data-language="es" aria-label="Español" title="Español" aria-pressed="false"><img src="flags/es.svg" width="26" height="18" alt=""></button>
         <button class="language-button" type="button" data-language="en" aria-label="English" title="English" aria-pressed="false"><img src="flags/en.svg" width="26" height="18" alt=""></button>
       </div>
+      <button id="install" class="language-button" type="button" aria-label="Install" aria-expanded="false" aria-controls="install-panel">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      </div>
     </header>
+    <aside id="install-panel" class="install-panel" hidden aria-label="Install Daily Red" data-i18n-aria="install">
+      <p id="install-help"></p>
+      <button id="install-action" class="button button-quiet" type="button" hidden></button>
+      <button id="install-close" class="language-button" type="button" aria-label="Close" data-i18n-aria="close">×</button>
+    </aside>
 
     <section class="console" id="console" aria-label="Game" data-i18n-aria="game">
       <div class="bezel">

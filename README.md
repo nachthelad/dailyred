@@ -8,6 +8,8 @@ Fork de [Daily Red, creado por amoi-builds](https://github.com/amoi-builds/daily
 
 Incluye selección de idioma con banderas, interfaz web y textos del modo Daily Red en español, además de preparación y compilación en Windows. Se conserva el modo en inglés y la misma generación de equipos y mecánica de combate. La traducción se centra en los combates, menús, movimientos, habilidades, objetos y mensajes utilizados por Daily Red; no es una traducción completa de la campaña de FireRed.
 
+La versión local incluye instalación PWA. Las capturas y grabaciones se hacen con las funciones nativas del celular. Ver [uso, caché y validación en celulares](docs/PWA-Y-CAPTURAS.md).
+
 Los créditos de traducciones comunitarias y recursos utilizados están en [localization/es/SOURCE-CREDITS.md](localization/es/SOURCE-CREDITS.md). Este repositorio contiene código, parches y recursos de la adaptación: las ROM compiladas, emulador descargado, herramientas y cachés quedan fuera de GitHub y se generan localmente.
 
 La documentación original continúa a continuación.

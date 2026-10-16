@@ -68,6 +68,11 @@ a { color: inherit; text-underline-offset: 3px; }
 
 .masthead { margin-bottom: 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
 .language-control { display: flex; align-items: center; gap: 4px; }
+.header-actions { display: flex; align-items: center; gap: 4px; }
+.install-panel { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin: -12px 0 16px; }
+.install-panel p { flex: 1 1 200px; margin: 0; font-size: 14px; }
+.install-panel .language-button { color: var(--text); }
+#install { color: var(--text); }
 .language-button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; background: transparent; border: 2px solid transparent; border-radius: 8px; cursor: pointer; touch-action: manipulation; }
 .language-button img { display: block; border-radius: 2px; }
 .language-button[aria-pressed="true"] { border-color: var(--crimson); }
