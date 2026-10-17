@@ -1,0 +1,98 @@
+name: Publish team modes on October 17
+
+on:
+  schedule:
+    # Start early to absorb scheduler delays; the job waits until 03:00 UTC.
+    - cron: '45 2 17 10 *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate the release without changing production
+        type: boolean
+        default: true
+      probe:
+        description: Test the Vercel integration on an isolated preview branch
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+  deployments: read
+
+concurrency:
+  group: scheduled-team-modes-2026-10-17
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'nachthelad/dailyred'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      RELEASE_SHA: b45f8ce8fe059f6290c3ecf83a768ba7d68ab8b8
+      BASE_SHA: f61c22af4bea978ab33304827714fd627b685b2d
+      RELEASE_AT: '2026-10-17T03:00:00Z'
+      GH_TOKEN: ${{ github.token }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+      PROBE: ${{ github.event_name == 'workflow_dispatch' && inputs.probe && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Validate the exact prepared release
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin codex/release-team-modes
+          test "$(git rev-parse FETCH_HEAD)" = "$RELEASE_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" HEAD
+          if git merge-base --is-ancestor "$RELEASE_SHA" HEAD; then
+            echo 'The release is already on main.' >> "$GITHUB_STEP_SUMMARY"
+            echo 'ALREADY_RELEASED=true' >> "$GITHUB_ENV"
+            exit 0
+          fi
+          # Abort rather than overwrite any later application changes on main.
+          git diff --exit-code "$BASE_SHA" HEAD -- . ':(exclude).github/workflows/scheduled-team-modes.yml'
+          git merge-base --is-ancestor "$BASE_SHA" "$RELEASE_SHA"
+          echo "Validated release $RELEASE_SHA for 2026-10-17 00:00 Argentina." >> "$GITHUB_STEP_SUMMARY"
+      - name: Test the GitHub token to Vercel preview path
+        if: env.PROBE == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git switch --detach "$RELEASE_SHA"
+          git config user.name 'Ignacio Ventura'
+          git config user.email 'nachthelad@gmail.com'
+          git commit --allow-empty -m 'Verify scheduled release preview integration'
+          git push origin "HEAD:refs/heads/codex/release-probe-${GITHUB_RUN_ID}"
+          echo "Preview probe: codex/release-probe-${GITHUB_RUN_ID}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Wait for midnight in Argentina
+        if: env.DRY_RUN != 'true' && env.ALREADY_RELEASED != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=$(date -u -d "$RELEASE_AT" +%s)
+          now=$(date -u +%s)
+          # This is a one-time release, never an annual publication.
+          test "$now" -ge "$((target - 1800))"
+          test "$now" -lt "$((target + 3600))"
+          while [ "$(date -u +%s)" -lt "$target" ]; do sleep 5; done
+      - name: Publish the reviewed code to the production branch
+        if: env.DRY_RUN != 'true' && env.ALREADY_RELEASED != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Ignacio Ventura'
+          git config user.email 'nachthelad@gmail.com'
+          git merge --no-ff "$RELEASE_SHA" -m 'Release daily team modes at midnight Argentina'
+          # The production source must equal the tested release plus this scheduler.
+          git diff --exit-code "$RELEASE_SHA" HEAD -- . ':(exclude).github/workflows/scheduled-team-modes.yml'
+          git push origin HEAD:main
+          echo "Production branch updated: $(git rev-parse HEAD). Vercel now builds both ROMs." >> "$GITHUB_STEP_SUMMARY"
+      - name: Disable this one-time scheduler after publication
+        if: env.DRY_RUN != 'true'
+        shell: bash
+        run: |
+          gh api --method PUT "repos/$GITHUB_REPOSITORY/actions/workflows/scheduled-team-modes.yml/disable"
