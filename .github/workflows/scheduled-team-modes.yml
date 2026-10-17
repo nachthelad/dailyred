@@ -19,6 +19,7 @@ permissions:
   contents: write
   actions: write
   deployments: read
+  statuses: read
 
 concurrency:
   group: scheduled-team-modes-2026-10-17
@@ -68,6 +69,22 @@ jobs:
           git commit --allow-empty -m 'Verify scheduled release preview integration'
           git push origin "HEAD:refs/heads/codex/release-probe-${GITHUB_RUN_ID}"
           echo "Preview probe: codex/release-probe-${GITHUB_RUN_ID}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify the Vercel preview build
+        if: env.ALREADY_RELEASED != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 120); do
+            state=$(gh api "repos/$GITHUB_REPOSITORY/commits/$RELEASE_SHA/status" --jq '[.statuses[] | select(.context == "Vercel")][0].state // "missing"')
+            if [ "$state" = success ] || [ "$DRY_RUN" = true ]; then break; fi
+            if [ "$state" = failure ] || [ "$state" = error ]; then
+              echo 'Vercel preview failed; production remains unchanged.' >&2
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "Vercel preview status: $state" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$DRY_RUN" != true ]; then test "$state" = success; fi
       - name: Wait for midnight in Argentina
         if: env.DRY_RUN != 'true' && env.ALREADY_RELEASED != 'true'
         shell: bash
