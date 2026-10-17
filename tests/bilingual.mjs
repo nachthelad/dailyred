@@ -33,7 +33,7 @@ try {
   await page.locator(`[data-language="${language}"]`).click();
   await page.reload();
   check(await page.locator(`[data-language="${language}"]`).getAttribute('aria-pressed') === 'true', 'language choice survives a reload');
-  check(await page.locator('.footer').innerText().then((s) => s.includes('amoi-builds') && s.includes('nachthelad') && s.includes('nachthelad.com.ar')), 'original creator and requested adaptation credit are visible');
+  check(await page.locator('.footer').innerText().then((s) => s.includes('amoi-builds') && s.includes('by nachthelad') && !s.includes('nachthelad.com.ar')), 'original creator and concise linked credit are visible');
   check(await page.locator('.footer a[href="https://nachthelad.com.ar"]').count() === 1, 'adaptation links to nachthelad.com.ar');
   await page.screenshot({ path: join(out, 'title.png'), fullPage: true });
   const beforeStats = await page.evaluate(() => localStorage.getItem('dailyred-stats'));

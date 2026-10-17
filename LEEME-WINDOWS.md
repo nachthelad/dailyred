@@ -6,7 +6,7 @@ Todo el entorno de trabajo está dentro de `D:\Cosas\Dev\daily-red`. Requiere el
 
 El selector **Español / English** cambia la página y la versión del juego antes de empezar. Detecta el idioma del navegador y recuerda tu elección. Mientras juegas queda bloqueado para no reiniciar la partida. Ambos idiomas comparten el equipo del día y las estadísticas: cambiar de idioma no da otro intento.
 
-Créditos visibles: Daily Red, creado por **amoi-builds**; **Adaptación al español por nachthelad · nachthelad.com.ar**, con enlaces a ambos. La procedencia de los textos y recursos está en `localization/README.md` y en “Créditos de traducción” en la web.
+Créditos visibles: Daily Red, creado por **amoi-builds**; **by nachthelad**, con enlaces a ambos. La procedencia de los textos y recursos está en `localization/README.md` y en “Créditos de traducción” en la web.
 
 ## Jugar y detener
 

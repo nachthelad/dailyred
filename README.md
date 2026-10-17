@@ -2,7 +2,7 @@
 
 ## Adaptación al español por nachthelad
 
-Fork de [Daily Red, creado por amoi-builds](https://github.com/amoi-builds/dailyred), adaptado para el público hispanohablante por [nachthelad · nachthelad.com.ar](https://nachthelad.com.ar).
+Fork de [Daily Red, creado por amoi-builds](https://github.com/amoi-builds/dailyred), adaptado para el público hispanohablante por [nachthelad](https://nachthelad.com.ar).
 
 **[Jugar en español](https://daily-red-es.vercel.app/?lang=es)** · [Preparar en Windows](LEEME-WINDOWS.md)
 
@@ -40,7 +40,7 @@ reimplemented in JavaScript.
 
 See [LEEME-WINDOWS.md](LEEME-WINDOWS.md) for the local Windows build, **Jugar.cmd**, and Spanish instructions. Tools, downloads, caches and working temporary files stay inside the project on D:.
 
-The adaptation includes compact **Español / English** flag buttons for both the site and the game. Credits: Daily Red by [amoi-builds](https://github.com/amoi-builds/dailyred); Spanish adaptation by [nachthelad · nachthelad.com.ar](https://nachthelad.com.ar). See [localization sources](localization/README.md) and [Windows build and testing instructions](LEEME-WINDOWS.md).
+The adaptation includes compact **Español / English** flag buttons for both the site and the game. Credits: Daily Red by [amoi-builds](https://github.com/amoi-builds/dailyred); by [nachthelad](https://nachthelad.com.ar). See [localization sources](localization/README.md) and [Windows build and testing instructions](LEEME-WINDOWS.md).
 
 ## Quick start (macOS)
 
