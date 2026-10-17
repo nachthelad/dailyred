@@ -10,6 +10,10 @@ Incluye selección de idioma con banderas, interfaz web y textos del modo Daily 
 
 La versión local incluye instalación PWA. Las capturas y grabaciones se hacen con las funciones nativas del celular. Ver [uso, caché y validación en celulares](docs/PWA-Y-CAPTURAS.md).
 
+### Publicación de la adaptación
+
+Los cambios se publican mediante un push a `main` en `nachthelad/dailyred` (remote local `fork`). La integración de GitHub sincroniza automáticamente el proyecto existente `daily-red-es` en Vercel. Después del push se verifica el despliegue del mismo commit y los recursos de producción. Este es el flujo habitual; no se realizan despliegues manuales directos a Vercel.
+
 Los créditos de traducciones comunitarias y recursos utilizados están en [localization/es/SOURCE-CREDITS.md](localization/es/SOURCE-CREDITS.md). Este repositorio contiene código, parches y recursos de la adaptación: las ROM compiladas, emulador descargado, herramientas y cachés quedan fuera de GitHub y se generan localmente.
 
 La documentación original continúa a continuación.

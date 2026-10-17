@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#d3202b"/><path d="M4 26 L14 9 L19 17 L22 13 L28 26 Z" fill="#1a2430"/><path d="M14 9 L17.5 15 L15.5 14 L13.5 16 L11.2 13.7 Z" fill="#eef3f7"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="crispEdges">
+  <title>Daily Red — El último rival</title>
+  <style>@media (max-width: 24px) { .snow { display: none; } }</style>
+  <rect width="64" height="64" rx="12" fill="#25333e" shape-rendering="geometricPrecision"/>
+  <g class="snow" fill="#7c929f"><path d="M12 18h2v2h-2zM48 28h2v2h-2zM44 10h2v2h-2z"/></g>
+  <path d="M4 56v-6h8v-6h8v-4h24v4h8v6h8v6z" fill="#b8ccd6"/>
+  <path d="M20 44v-4h24v4h-4v4h-6v-4h-6v4h-4v-4z" fill="#f1eee3"/>
+  <path d="M26 34h6v8h-6zM34 34h6v8h-6z" fill="#111b24"/>
+  <path d="M24 26h16v10H24z" fill="#bd2839"/>
+  <path d="M24 26h4v8h-4z" fill="#f1eee3"/>
+  <path d="M40 26h2v8h-2z" fill="#d3b098"/>
+  <path d="M28 20h10v6H28z" fill="#d3b098"/>
+  <path d="M28 20h10v2H28z" fill="#111b24"/>
+  <path d="M26 12h12v4h4v4H24v-4h2z" fill="#e33b48"/>
+  <path d="M32 12h6v4h-6z" fill="#f1eee3"/>
+</svg>

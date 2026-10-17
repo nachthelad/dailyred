@@ -19,7 +19,8 @@ try {
       const canvas = document.createElement('canvas');
       canvas.width = canvas.height = size;
       const context = canvas.getContext('2d');
-      context.fillStyle = '#d3202b'; context.fillRect(0, 0, size, size);
+      context.fillStyle = '#25333e'; context.fillRect(0, 0, size, size);
+      context.imageSmoothingEnabled = false;
       context.drawImage(image, size * padding, size * padding, size * (1 - 2 * padding), size * (1 - 2 * padding));
       return canvas.toDataURL('image/png').split(',')[1];
     }, { source, size, padding });
