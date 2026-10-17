@@ -77,8 +77,8 @@ try {
     await locked.goto(`${server.url}/?lang=${lang}`); await locked.click('#play');
     await locked.check('[value=electric]');
     await locked.evaluate(async () => {
-      const { today } = await import('/daily.js');
-      localStorage.setItem('dailyred-stats', JSON.stringify({ wins: 7, losses: 3, lastPlayed: today(), lastResult: 'won', winStreak: 2, dayStreak: 5 }));
+      const { today, dailyRevision } = await import('/daily.js');
+      localStorage.setItem('dailyred-stats', JSON.stringify({ wins: 7, losses: 3, lastPlayed: today(), lastRevision: dailyRevision(today()), lastResult: 'won', winStreak: 2, dayStreak: 5 }));
     });
     await locked.click('#begin');
     await locked.waitForFunction(() => document.querySelector('.app').dataset.state === 'title');

@@ -44,8 +44,8 @@ try {
   assert.deepEqual(await page.evaluate(() => window.cspViolations), []);
   assert.deepEqual(errors, []);
   await page.evaluate(async () => {
-    const { today } = await import('/daily.js');
-    localStorage.setItem('dailyred-stats', JSON.stringify({ wins: 1, losses: 0, lastPlayed: today(), lastResult: 'won' }));
+    const { today, dailyRevision } = await import('/daily.js');
+    localStorage.setItem('dailyred-stats', JSON.stringify({ wins: 1, losses: 0, lastPlayed: today(), lastRevision: dailyRevision(today()), lastResult: 'won' }));
   });
   await page.goto(`${base}/?seed=999&lang=es`);
   await page.waitForFunction(() => window.dailyRed);

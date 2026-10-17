@@ -86,6 +86,14 @@ file server works without special headers. Everything loads from `web/vendor/`.
 
 ### The daily game
 
+One-time reopening: on **2026-10-17**, players with an earlier result get one
+fresh attempt after loading the updated site. Previous wins/losses remain in
+their totals; the extra battle does not add a second day to streaks. Finishing
+or abandoning the reopened attempt locks it again. Revision metadata defaults
+to zero for older saves and is ignored on other dates; all modes share the
+same attempt and the day's team seed is unchanged. This exception lives in
+`dailyRevision()` in `web/daily.js` and requires no clearing of browser data.
+
 - **The day's team:** the seed is a hash of today's date in the player's own
   time zone (`dailySeed` in `web/daily.js`), so everyone gets the same team
   on the same calendar day within each mode, like Wordle.

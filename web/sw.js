@@ -1,6 +1,6 @@
 // Bump this version whenever a shipped browser asset changes. New workers wait
 // for all existing clients to close: never replace/reload an active battle.
-const CACHE = 'dailyred-v4';
+const CACHE = 'dailyred-v5';
 const SHELL = [
   './', 'index.html', 'app.js', 'daily.js', 'game-files.js', 'game-link.js',
   'i18n.js', 'rom-config.js', 'pwa.js', 'style.css', 'favicon.svg',

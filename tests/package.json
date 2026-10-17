@@ -10,6 +10,7 @@
     "teams": "node teams.mjs",
     "team-modes": "node team-modes.mjs",
     "selection": "node selection.mjs",
+    "daily-reset": "node --test daily-reset.mjs && node daily-reset-ui.mjs",
     "bilingual:es": "node bilingual.mjs es",
     "bilingual:en": "node bilingual.mjs en",
     "localization": "node ../scripts/localize-rom.mjs --check",

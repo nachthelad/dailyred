@@ -6,6 +6,10 @@
 
 const STORAGE_KEY = 'dailyred-stats';
 
+// One-time reopening after the team-mode release. Existing results remain in
+// all-time stats; only this date gets a new daily attempt. Other days use 0.
+export const dailyRevision = (date) => date === '2026-10-17' ? 1 : 0;
+
 // A date in the player's time zone, e.g. "2026-10-11".
 export function today(now = new Date()) {
   const pad = (n) => String(n).padStart(2, '0');
@@ -41,7 +45,7 @@ export function msUntilTomorrow(now = new Date()) {
 //   lastPlayed       date of the last finished battle, lastResult 'won'/'lost'
 //   pending          date of a battle that started but hasn't finished
 
-const EMPTY = { wins: 0, losses: 0, winStreak: 0, dayStreak: 0, lastPlayed: null, lastResult: null, pending: null };
+const EMPTY = { wins: 0, losses: 0, winStreak: 0, dayStreak: 0, lastPlayed: null, lastResult: null, lastRevision: 0, pending: null, pendingRevision: 0 };
 
 let memoryCopy = null; // used when localStorage is blocked
 
@@ -64,8 +68,9 @@ function save(stats) {
 }
 
 // Today's result ('won' / 'lost'), or null if today's battle isn't done.
-export function resultFor(stats, date) {
-  return stats.lastPlayed === date ? stats.lastResult : null;
+export function resultFor(stats, date, revision = dailyRevision(date)) {
+  const recordedRevision = dailyRevision(date) === 0 ? 0 : (stats.lastRevision ?? 0);
+  return stats.lastPlayed === date && recordedRevision === revision ? stats.lastResult : null;
 }
 
 // Streaks as they stand on `date`: missing a day breaks them.
@@ -77,34 +82,46 @@ export function currentStreaks(stats, date) {
 // From the moment RED's battle starts the day counts as played, so leaving
 // mid-battle counts as a loss (see settleAbandonedGame).
 export function markBattleStarted(stats, date) {
-  if (stats.pending === date || resultFor(stats, date)) return;
+  const revision = dailyRevision(date);
+  if ((stats.pending === date && (stats.pendingRevision ?? 0) === revision) || resultFor(stats, date)) return;
   stats.pending = date;
+  stats.pendingRevision = revision;
   save(stats);
 }
 
-export function recordResult(stats, date, won) {
-  if (stats.lastPlayed === date) return;
+export function recordResult(stats, date, won, revision = dailyRevision(date)) {
+  // Older cached clients may carry unknown revision fields to the next date.
+  // Revision metadata never changes the ordinary one-attempt rule on other days.
+  if (dailyRevision(date) === 0) revision = 0;
+  const sameDay = stats.lastPlayed === date;
+  // Ignore duplicate results and an older attempt finishing after its replacement.
+  if (sameDay && (dailyRevision(date) === 0 || (stats.lastRevision ?? 0) >= revision)) return;
   const consecutive = stats.lastPlayed === addDays(date, -1);
-  stats.dayStreak = consecutive ? stats.dayStreak + 1 : 1;
+  if (!sameDay) stats.dayStreak = consecutive ? stats.dayStreak + 1 : 1;
   if (won) {
     stats.wins++;
-    stats.winStreak = consecutive && stats.lastResult === 'won' ? stats.winStreak + 1 : 1;
+    stats.winStreak = sameDay
+      ? (stats.lastResult === 'won' ? Math.max(1, stats.winStreak) : 1)
+      : (consecutive && stats.lastResult === 'won' ? stats.winStreak + 1 : 1);
   } else {
     stats.losses++;
     stats.winStreak = 0;
   }
   stats.lastPlayed = date;
   stats.lastResult = won ? 'won' : 'lost';
+  stats.lastRevision = revision;
   stats.pending = null;
+  stats.pendingRevision = 0;
   save(stats);
 }
 
 // A battle that started but never finished (tab closed, page reloaded) is a loss.
 export function settleAbandonedGame(stats) {
-  if (stats.pending && stats.pending !== stats.lastPlayed) {
-    recordResult(stats, stats.pending, false);
-  } else if (stats.pending) {
+  if (stats.pending) {
+    // A pre-reset abandoned battle belongs to revision 0, not the reopened slot.
+    recordResult(stats, stats.pending, false, stats.pendingRevision ?? 0);
     stats.pending = null;
+    stats.pendingRevision = 0;
     save(stats);
   }
   return stats;
