@@ -482,6 +482,15 @@ kbd {
 .footer p { margin: 0 0 8px; max-width: 64ch; }
 .footer p:last-child { margin-bottom: 0; }
 
+.footer-support {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.footer-support a { display: inline-flex; max-width: 100%; }
+.footer-support img { display: block; width: 180px; max-width: 100%; height: auto; }
+
 /* Small screens ------------------------------------------------------------ */
 
 @media (max-width: 640px) {
