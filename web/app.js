@@ -59,6 +59,7 @@ let battleSeen = false;
 let muted = session.get('dailyred-muted') === '1';
 let starting = false;
 let titleDate = null;
+let teamMode = 'random';
 const pwa = setupPwa();
 
 // RetroArch opens a Web Audio context for each emulator and never closes it,
@@ -166,8 +167,8 @@ async function startRun() {
     }
     const seed = practiceSeed ?? dailySeed(runDate);
     const rom = practiceSeed
-      ? injectConfig(files.rom, { seed })
-      : injectConfig(files.rom, { seed, wins: stats.wins, battles: stats.wins + stats.losses, daily: true });
+      ? injectConfig(files.rom, { seed, teamMode })
+      : injectConfig(files.rom, { seed, teamMode, wins: stats.wins, battles: stats.wins + stats.losses, daily: true });
 
     ui.loadingText.textContent = t('starting');
     ui.loadingDetail.textContent = '';
@@ -253,7 +254,31 @@ function onClick(button, handler) {
   });
 }
 
-onClick(ui.play, startRun);
+onClick(ui.play, () => {
+  stats = loadStats();
+  renderTitle();
+  if (!practiceSeed && resultFor(stats, today())) return;
+  $('team-choice').reset();
+  teamMode = 'random';
+  setState('choosing');
+  $('choice-heading').focus();
+});
+$('team-choice').addEventListener('submit', event => {
+  event.preventDefault();
+  if (app.dataset.state !== 'choosing' || starting) return;
+  teamMode = new FormData($('team-choice')).get('teamMode');
+  document.activeElement?.blur();
+  startRun();
+});
+onClick($('choice-back'), () => {
+  stats = loadStats();
+  renderTitle();
+  setState('title');
+  if (!ui.play.hidden) ui.play.focus();
+});
+$('team-choice').addEventListener('keydown', event => {
+  if (event.key === 'Escape') { event.preventDefault(); $('choice-back').click(); }
+});
 onClick(ui.retry, startRun);
 
 onClick(ui.sound, () => {

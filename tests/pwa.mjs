@@ -34,12 +34,28 @@ try {
   await page.waitForFunction(() => navigator.serviceWorker.controller);
   const manifest = await page.evaluate(async () => (await fetch('manifest.webmanifest')).json());
   assert.equal(manifest.display, 'standalone');
+  assert.equal(manifest.theme_color, '#131c26');
+  assert.equal(manifest.background_color, '#131c26');
+  for (const [scheme, color] of [['dark', '#131c26'], ['light', '#eef3f7']]) {
+    await page.emulateMedia({ colorScheme: scheme });
+    const colors = await page.evaluate(() => {
+      const meta = [...document.querySelectorAll('meta[name="theme-color"]')].find(el => !el.media || matchMedia(el.media).matches);
+      const sample = document.createElement('span');
+      sample.style.color = meta.content;
+      document.body.append(sample);
+      const value = { theme: meta.content, bar: getComputedStyle(sample).color, background: getComputedStyle(document.body).backgroundColor };
+      sample.remove();
+      return value;
+    });
+    assert.equal(colors.theme, color);
+    assert.equal(colors.bar, colors.background);
+  }
   for (const icon of manifest.icons) {
     assert.equal(await page.evaluate(async src => {
       const image = new Image(); image.src = src; await image.decode(); return `${image.width}x${image.height}`;
     }, icon.src), icon.sizes);
   }
-  await page.locator('#play').tap();
+  await page.locator('#play').tap(); await page.locator('#begin').tap();
   await page.waitForFunction(() => window.dailyRed?.emulator, null, { timeout: 60000 });
   await sleep(8000);
   assert.equal(await page.locator('#capture, #record, #capture-result').count(), 0);
@@ -48,7 +64,7 @@ try {
   // Cached ROM/core boot when offline, preserving the same practice URL.
   await page.context().setOffline(true);
   await page.reload();
-  await page.locator('#play').tap();
+  await page.locator('#play').tap(); await page.locator('#begin').tap();
   await page.waitForFunction(() => window.dailyRed?.emulator, null, { timeout: 60000 });
   await page.context().setOffline(false);
   await page.evaluate(() => dispatchEvent(new Event('appinstalled')));

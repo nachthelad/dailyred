@@ -128,6 +128,7 @@ a { color: inherit; text-underline-offset: 3px; }
 }
 
 .app[data-state="title"] .card-title,
+.app[data-state="choosing"] .card-choices,
 .app[data-state="loading"] .card-loading,
 .app[data-state="error"] .card-error { display: flex; }
 
@@ -143,6 +144,24 @@ a { color: inherit; text-underline-offset: 3px; }
   margin: 0;
   font-size: 15px;
   color: #b9c8d5;
+}
+
+.app[data-state="choosing"] .screen { min-height: 400px; }
+.card-choices { gap: 14px; padding: 20px; overflow-y: auto; }
+.card-choices .card-note { max-width: 45ch; }
+.team-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: min(100%, 420px); margin: 0; padding: 0; border: 0; }
+.team-option { display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px; border: 2px solid #657e96; border-radius: 6px; cursor: pointer; text-align: left; background: #24384b; font: 600 18px/1 var(--font-pixel); }
+.team-option:first-of-type { grid-column: 1 / -1; }
+.team-option:has(input:checked) { background: #3a536d; border-color: #f5d770; }
+.team-option:has(input:focus-visible) { outline: 3px solid white; outline-offset: 2px; }
+.team-option input { accent-color: #f5d770; margin: 0; width: 18px; height: 18px; flex-shrink: 0; }
+.choice-actions { display: flex; justify-content: center; gap: 12px; }
+.choice-actions .button { min-height: 44px; padding: 10px 20px; font-size: 20px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 380px) {
+  .card-choices { padding: 12px; }
+  .team-option { gap: 4px; font-size: 14px; }
+  .team-option input { width: 16px; height: 16px; }
 }
 
 /* Title card: RED, the player's stats, then Play (or today's result). */

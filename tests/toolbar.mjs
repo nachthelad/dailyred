@@ -18,7 +18,7 @@ try {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(`${server.url}/?lang=es`);
-  await page.locator('#play').tap();
+  await page.locator('#play').tap(); await page.locator('#begin').tap();
   await page.waitForFunction(() => window.dailyRed?.emulator, null, { timeout: 60000 });
   await page.evaluate(() => { window.emu = window.dailyRed.emulator; });
   await waitFor(page, state => state.inOverworld, { timeoutMs: 30000 });

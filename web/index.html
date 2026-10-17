@@ -6,7 +6,8 @@
   <title>Daily Red</title>
   <meta name="description" content="One Pokémon battle a day: six random level 100 Pokémon against RED at the top of the mountain.">
   <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#d3202b">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef3f7">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#131c26">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -53,6 +54,24 @@
             </div>
             <p class="card-note" id="practice-note" hidden data-i18n="practice">Practice run: results aren't saved.</p>
           </div>
+          <form class="card card-choices" id="team-choice" aria-labelledby="choice-heading">
+            <h2 class="card-heading" id="choice-heading" tabindex="-1" data-i18n="chooseTeam">How do you want to play?</h2>
+            <p class="card-note" data-i18n="choiceNote">Six random Pokémon. One battle a day across all modes.</p>
+            <fieldset class="team-options">
+              <legend class="visually-hidden" data-i18n="teamMode">Team mode</legend>
+              <label class="team-option"><input type="radio" name="teamMode" value="random" checked><span aria-hidden="true">🎲</span><span data-i18n="modeRandom">Random</span></label>
+              <label class="team-option"><input type="radio" name="teamMode" value="fire"><span aria-hidden="true">🔥</span><span data-i18n="modeFire">Fire</span></label>
+              <label class="team-option"><input type="radio" name="teamMode" value="water"><span aria-hidden="true">💧</span><span data-i18n="modeWater">Water</span></label>
+              <label class="team-option"><input type="radio" name="teamMode" value="grass"><span aria-hidden="true">🌿</span><span data-i18n="modeGrass">Grass</span></label>
+              <label class="team-option"><input type="radio" name="teamMode" value="fighting"><span aria-hidden="true">🥊</span><span data-i18n="modeFighting">Fighting</span></label>
+              <label class="team-option"><input type="radio" name="teamMode" value="electric"><span aria-hidden="true">⚡</span><span data-i18n="modeElectric">Electric</span></label>
+              <label class="team-option"><input type="radio" name="teamMode" value="rock"><span aria-hidden="true">🪨</span><span data-i18n="modeRock">Rock</span></label>
+            </fieldset>
+            <div class="choice-actions">
+              <button class="button button-quiet" id="choice-back" type="button" data-i18n="choiceBack">Back</button>
+              <button class="button button-play" id="begin" type="submit" data-i18n="begin">Begin</button>
+            </div>
+          </form>
           <div class="card card-loading" role="status" aria-live="polite">
             <p class="card-heading" id="loading-text" data-i18n="downloading">Downloading the game</p>
             <div class="meter"><div class="meter-fill" id="meter"></div></div>

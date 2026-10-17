@@ -16,7 +16,7 @@ La documentación original continúa a continuación.
 
 A daily Pokémon battle in the browser, like Wordle: once a day you press
 **Play**, get the day's six random level 100 Pokémon from Generations 1–3
-(everyone gets the same team that day), and climb to RED at the top of the
+(everyone choosing the same mode gets the same team that day), and climb to RED at the top of the
 mountain. You get one battle per day. Your wins, losses, win streak and daily
 play streak are kept in your browser.
 
@@ -88,10 +88,10 @@ file server works without special headers. Everything loads from `web/vendor/`.
 
 - **The day's team:** the seed is a hash of today's date in the player's own
   time zone (`dailySeed` in `web/daily.js`), so everyone gets the same team
-  on the same calendar day, like Wordle.
+  on the same calendar day within each mode, like Wordle.
 - **Site → game:** the ROM contains a small struct, `gDailyRedRomConfig`: the
-  magic bytes `DAILYRED-CONF-V2`, then the seed, the player's wins and battles
-  so far, and a "daily" flag. Before booting, `web/rom-config.js` finds the
+  magic bytes `DAILYRED-CONF-V3`, then the seed, the player's wins and battles
+  so far, a "daily" flag and the team mode. Before booting, `web/rom-config.js` finds the
   magic bytes in the downloaded ROM and fills them in; no addresses are
   hard-coded on either side. The game uses the record for its "Record: x
   win(s) in x battle(s)" message.
@@ -105,7 +105,7 @@ file server works without special headers. Everything loads from `web/vendor/`.
   result is saved the moment it's known. After the closing messages the game
   fades to black and holds; the site then closes it and shows today's result
   and a countdown to the next battle. Before the battle you can reload freely:
-  it's the same team all day.
+  it's the same team all day for the same mode.
 - **Stats** (`web/daily.js`, localStorage key `dailyred-stats`): wins, losses,
   win streak (daily wins in a row) and day streak (days played in a row).
   Missing a day resets both streaks.
@@ -153,15 +153,26 @@ not the byte-matching `agbcc` build, so it doesn't reproduce the retail ROM.
 
 ## Team generation
 
+Before booting the game, **Play** opens a choice of **Random, Fire, Water,
+Grass, Fighting, Electric or Rock**, followed by **Begin** (or **Back** to cancel).
+Random is selected initially. Typed teams accept either species type, including
+dual types. There is still **one battle per day total**, shared by all choices;
+the attempt is consumed when RED's battle starts, as before. Date plus mode fixes
+the team: reopening the selector or retrying a failed download does not reroll it.
+The team mode is passed through the versioned `DAILYRED-CONF-V3` ROM configuration.
+
 `pokefirered/src/dailyred_team.c` builds each team with the decomp's own data
 (`gLevelUpLearnsets`, `CanMonLearnTMHM`, the TM/HM move table,
 `CreateMon`, `CalculateMonStats`):
 
-- **Species:** 6 different Pokémon from all 386 of Generations 1–3 whose
+- **Species:** 6 different eligible Pokémon from Generations 1–3 whose
   **base stat totals add up to at least 2700** (`MIN_TEAM_BASE_STAT_TOTAL`).
   **Legendaries are a 1-in-8 roll** (`LEGENDARY_TEAM_ODDS`): 1 team in 8 gets
   exactly one legendary or mythical Pokémon, in a random party slot, and the
-  other 7 get none. The generator then redraws the rest of the team until it
+  other 7 get none. Only eligible legendaries of the chosen type participate;
+  Fighting has no eligible Gen 1–3 legendary and always gets none.
+  Species unable to learn two qualifying same-type attacks are excluded in all modes.
+  The generator then redraws the rest of the team until it
   meets the minimum, so every qualifying team is equally likely. Per-species
   rules live in `IsEligibleSpecies`, e.g. add "fully evolved only" there.
 
@@ -186,17 +197,22 @@ not the byte-matching `agbcc` build, so it doesn't reproduce the retail ROM.
   | **2700** | **96%** | **93%** | **about 1 in 25** |
   | 2750 | 97% | 94% | about 1 in 17 |
 
-  (Odds from simulating 80,000 teams.) Measured in the real ROM at 2700 over
+  (Historical mixed-team baseline before the type/move filters, from simulating
+  80,000 teams; these estimates do not describe the new typed pools.) Measured in the old ROM at 2700 over
   80 runs: typical team 95% of RED's stats, range 93–101%, 1 team stronger
   than RED. RED also has hand-picked moves, chosen held items (his Pikachu's
   Light Ball doubles its Sp. Atk) and the strongest trainer AI, so he stays
   the favourite.
 
-- **Moves:** up to 4 different moves picked uniformly from everything the
-  species can learn **by level-up (any level) or TM/HM**. One rule on top: if
-  none of the four can deal damage and the species has any damaging move, one
-  pick is swapped for a damaging move. Species with fewer than 4 learnable moves
-  (Ditto, Unown, Magikarp, Smeargle…) get all of them.
+- **Moves:** two different damaging attacks are drawn from the species' legal
+  **level-up (any level) or TM/HM** pool. In typed modes both match the chosen
+  type; in Random they can match either own type, two total. The remaining
+  slots are random legal moves without repeats, and all slots are shuffled.
+  Hidden Power, Weather Ball, Struggle, the typeless Gen 3 Future Sight,
+  Doom Desire, Beat Up and Bide, and attacks requiring sleep or Stockpile
+  (Snore, Dream Eater, Spit Up) do not count toward the guarantee. They may
+  still appear in the remaining legal slots. Ditto, Unown and other species
+  unable to meet the two-attack rule are no longer eligible.
 - **Stats:** level 100, random personality (so random nature, gender, ability
   and the usual 1/8192 shiny chance), and trained close to RED's level:
   - **IVs** random from 25 to 31 in every stat (`MIN_TEAM_IV`); RED's are all 31.
@@ -214,19 +230,33 @@ not the byte-matching `agbcc` build, so it doesn't reproduce the retail ROM.
   Quick Claw, Lum Berry, pinch berries…) plus the 10% type booster for each
   type it actually attacks with (Charcoal only if it has a Fire attack, and
   so on). There are still no bag items.
-- **Safety:** each Pokémon is validated (level, HP, at least one move, no
-  duplicate moves, PP). If a Pokémon somehow failed 10 times, the game would
-  use FireRed's own default level-100 moveset for it rather than hand over
-  something broken.
+- **Safety:** each Pokémon is validated (eligibility, level, HP, two qualifying
+  attacks, no duplicate moves, PP); defensive retries use the same rules.
+  Species sampling is bounded. After 1000 unsuccessful team draws, the
+  strongest distinct eligible regulars fill the remaining slots, preserving
+  the legendary decision and minimum BST. Independent pool audits verify
+  that this fallback can reach 2700 for every mode and eligible legendary.
 
 Trade-offs in this first version: the move picker ignores move tutors and egg
 moves (add them in `GetLearnableMoves`), and it's deliberately not
-competitive. Splash, Water Sport or three status moves plus one attack are all
-possible. Items are picked without looking at the moveset beyond type
+competitive. Splash and Water Sport can still fill the remaining slots.
+Items are picked without looking at the moveset beyond type
 boosters, so a Choice Band can land on a Pokémon that mostly uses status
 moves, and species-specific items (Light Ball, Thick Club…) aren't in the pool.
 The generator uses its own RNG state, separate from the game's `Random()`, so
-teams depend only on the seed.
+teams depend only on the seed and mode. New mode/attack validation commands:
+
+```powershell
+node tests/type-rules.mjs --audit
+node tests/team-modes.mjs
+node tests/selection.mjs en
+node tests/selection.mjs es
+# For the Spanish ROM matrix, use both Spanish assets and matching ELF symbols:
+$env:DAILYRED_ROM_LANGUAGE = 'es'
+$env:DAILYRED_GAME_DIR = "$PWD/.toolchain/pokefirered-es"
+node tests/team-modes.mjs
+Remove-Item Env:DAILYRED_ROM_LANGUAGE, Env:DAILYRED_GAME_DIR
+```
 
 ## RED's team
 

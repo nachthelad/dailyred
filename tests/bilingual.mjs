@@ -37,7 +37,7 @@ try {
   check(await page.locator('.footer a[href="https://nachthelad.com.ar"]').count() === 1, 'adaptation links to nachthelad.com.ar');
   await page.screenshot({ path: join(out, 'title.png'), fullPage: true });
   const beforeStats = await page.evaluate(() => localStorage.getItem('dailyred-stats'));
-  await page.click('#play');
+  await page.click('#play'); await page.click('#begin');
   await page.waitForFunction(() => window.dailyRed?.emulator, null, { timeout: 60000 });
   await page.evaluate(() => { window.emu = window.dailyRed.emulator; });
   const initial = await waitFor(page, (s) => s.inOverworld, { timeoutMs: 30000 });
@@ -91,7 +91,7 @@ try {
   if (language === 'es') {
     const helpContext = await browser.newContext({ locale, viewport: { width: 1280, height: 980 } });
     const helpPage = await helpContext.newPage();
-    await helpPage.goto(`${server.url}/?seed=42`); await helpPage.click('#play');
+    await helpPage.goto(`${server.url}/?seed=42`); await helpPage.click('#play'); await helpPage.click('#begin');
     await helpPage.waitForFunction(() => window.dailyRed?.emulator, null, { timeout: 60000 });
     await helpPage.evaluate(() => { window.emu = window.dailyRed.emulator; });
     await waitFor(helpPage, (s) => s.inOverworld, { timeoutMs: 30000 });
@@ -127,7 +127,7 @@ try {
     const failure = await browser.newContext({ locale }); const bad = await failure.newPage();
     const requests = []; bad.on('request', (r) => requests.push(r.url()));
     await bad.route('**/game/dailyred-es.gba.gz', (route) => route.fulfill({ status: 404, body: 'missing' }));
-    await bad.goto(`${server.url}/?seed=42`); await bad.click('#play');
+    await bad.goto(`${server.url}/?seed=42`); await bad.click('#play'); await bad.click('#begin');
     await bad.waitForFunction(() => document.querySelector('.app').dataset.state === 'error');
     check((await bad.locator('#error-text').textContent()).includes('No se pudo descargar'), 'Spanish download error is translated');
     check(!requests.some((r) => r.endsWith('/game/dailyred.gba.gz')), 'missing Spanish ROM never silently falls back to English');

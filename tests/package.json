@@ -8,6 +8,8 @@
     "smoke": "node smoke.mjs",
     "site": "node site.mjs",
     "teams": "node teams.mjs",
+    "team-modes": "node team-modes.mjs",
+    "selection": "node selection.mjs",
     "bilingual:es": "node bilingual.mjs es",
     "bilingual:en": "node bilingual.mjs en",
     "localization": "node ../scripts/localize-rom.mjs --check",
