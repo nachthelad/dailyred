@@ -1,12 +1,13 @@
 // Writes the run settings into the Daily Red ROM image before it is booted.
 //
 // The game keeps a small struct in ROM (gDailyRedRomConfig in
-// pokefirered/src/dailyred.c): the 16-byte magic "DAILYRED-CONF-V2", then
-// little-endian u32 seed, u16 wins, u16 battles and u8 daily. Finding it by its
+// pokefirered/src/dailyred.c): the 16-byte magic "DAILYRED-CONF-V3", then
+// little-endian u32 seed, u16 wins, u16 battles, u8 daily and u8 teamMode. Finding it by its
 // magic means no addresses are hard-coded here. A non-zero seed makes the game
 // skip the title screen and generate its team from that seed.
 
-const MAGIC = new TextEncoder().encode('DAILYRED-CONF-V2');
+const MAGIC = new TextEncoder().encode('DAILYRED-CONF-V3');
+export const TEAM_MODES = Object.freeze(['random', 'fire', 'water', 'grass', 'fighting', 'electric', 'rock']);
 
 export function findConfigOffset(rom) {
   const first = MAGIC[0];
@@ -24,7 +25,10 @@ export function findConfigOffset(rom) {
 //   wins     the player's record before this game (shown in the game's
 //   battles  record message)
 //   daily    true for the daily game: one battle, then the game ends
-export function injectConfig(rom, { seed, wins = 0, battles = 0, daily = false }) {
+//   teamMode random, fire, water, grass, fighting, electric or rock
+export function injectConfig(rom, { seed, wins = 0, battles = 0, daily = false, teamMode = 'random' }) {
+  const mode = TEAM_MODES.indexOf(teamMode);
+  if (mode < 0) throw new Error(`Unknown team mode: ${teamMode}`);
   const offset = findConfigOffset(rom);
   if (offset < 0) throw new Error('This ROM has no Daily Red config. Rebuild it with scripts/build-rom.sh.');
   const patched = rom.slice();
@@ -33,6 +37,7 @@ export function injectConfig(rom, { seed, wins = 0, battles = 0, daily = false }
   view.setUint16(offset + 4, Math.min(wins, 0xFFFF), true);
   view.setUint16(offset + 6, Math.min(battles, 0xFFFF), true);
   view.setUint8(offset + 8, daily ? 1 : 0);
+  view.setUint8(offset + 9, mode);
   return patched;
 }
 

@@ -39,7 +39,7 @@ try {
       const image = new Image(); image.src = src; await image.decode(); return `${image.width}x${image.height}`;
     }, icon.src), icon.sizes);
   }
-  await page.locator('#play').tap();
+  await page.locator('#play').tap(); await page.locator('#begin').tap();
   await page.waitForFunction(() => window.dailyRed?.emulator, null, { timeout: 60000 });
   await sleep(8000);
   assert.equal(await page.locator('#capture, #record, #capture-result').count(), 0);
@@ -48,7 +48,7 @@ try {
   // Cached ROM/core boot when offline, preserving the same practice URL.
   await page.context().setOffline(true);
   await page.reload();
-  await page.locator('#play').tap();
+  await page.locator('#play').tap(); await page.locator('#begin').tap();
   await page.waitForFunction(() => window.dailyRed?.emulator, null, { timeout: 60000 });
   await page.context().setOffline(false);
   await page.evaluate(() => dispatchEvent(new Event('appinstalled')));

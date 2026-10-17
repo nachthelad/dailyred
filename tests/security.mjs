@@ -37,7 +37,7 @@ try {
   await page.waitForFunction(() => window.dailyRed);
   assert.equal(new URL(page.url()).searchParams.has('seed'), false);
   assert.equal(await page.locator('#practice-note').isVisible(), false);
-  await page.locator('#play').click();
+  await page.locator('#play').click(); await page.locator('#begin').click();
   await page.waitForFunction(() => window.dailyRed.emulator, null, { timeout: 60000 });
   await page.evaluate(() => { window.emu = window.dailyRed.emulator; });
   await waitFor(page, state => state.inOverworld, { timeoutMs: 30000 });

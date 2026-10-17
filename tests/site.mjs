@@ -80,7 +80,7 @@ try {
   check(licenses === 200, `footer links to licenses.txt (status ${licenses})`);
   check(!(await page.locator('.pad').isVisible()), 'touch controls are hidden on desktop');
 
-  await page.click('#play');
+  await page.click('#play'); await page.click('#begin');
   await attach(page);
   const box = await page.locator('canvas').boundingBox();
   check(Math.round(box.width) === 720 && Math.round(box.height) === 480, `game screen is 720x480 on desktop (got ${box.width}x${box.height})`);
@@ -106,7 +106,7 @@ try {
   const otherPage = await other.newPage();
   await otherPage.clock.setFixedTime(at(DAY1, '22:00:00'));
   await otherPage.goto(server.url);
-  await otherPage.click('#play');
+  await otherPage.click('#play'); await otherPage.click('#begin');
   await attach(otherPage);
   check(JSON.stringify(readParty((await getStatus(otherPage)).mem).party.map((m) => m.species)) === team1, 'everyone gets the same team on the same day');
   await other.close();
@@ -117,7 +117,7 @@ try {
   await sleep(1000);
   s = await shown(page);
   check(s.canPlay && s.winStreak === '1' && s.dayStreak === '1', `next day: Play is back, streaks kept (${statLine(s)})`);
-  await page.click('#play');
+  await page.click('#play'); await page.click('#begin');
   await attach(page);
   const team2 = JSON.stringify(readParty((await getStatus(page)).mem).party.map((m) => m.species));
   check(team2 !== team1, "a new day brings a new team");
@@ -131,7 +131,7 @@ try {
   // Day 3: leave in the middle of the battle -> counts as a loss.
   await page.clock.setFixedTime(at(DAY3));
   await page.reload();
-  await page.click('#play');
+  await page.click('#play'); await page.click('#begin');
   await attach(page);
   await startRedBattle(page);
   await sleep(1000);
@@ -153,7 +153,7 @@ try {
   await sleep(800);
   check(await page.locator('#practice-note').isVisible() && await page.locator('#play').isVisible(), 'practice run: Play is available, with a note');
   const before = JSON.stringify(await saved(page));
-  await page.click('#play');
+  await page.click('#play'); await page.click('#begin');
   await attach(page);
   await startRedBattle(page);
   await sleep(1000);
@@ -179,7 +179,7 @@ try {
   });
   check(fits, 'the title card fits inside the phone-sized screen');
   check(await phone.locator('.pad').isVisible(), 'touch controls are shown on a phone');
-  await phone.click('#play');
+  await phone.click('#play'); await phone.click('#begin');
   await attach(phone);
   await sleep(1500);
   const startY = (await getStatus(phone)).y;
@@ -199,7 +199,7 @@ try {
   const broken = await brokenContext.newPage();
   await broken.route('**/game/dailyred.gba.gz', (route) => route.fulfill({ status: 404, body: 'missing' }));
   await broken.goto(server.url);
-  await broken.click('#play');
+  await broken.click('#play'); await broken.click('#begin');
   await broken.waitForFunction(() => document.querySelector('.app').dataset.state === 'error');
   const message = await broken.locator('#error-text').textContent();
   check(message.includes('HTTP 404'), `download failure shows an error ("${message}")`);

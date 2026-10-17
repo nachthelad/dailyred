@@ -338,10 +338,10 @@ index 5c7bbf8..e477fa9 100644
  #define VAR_0x402D                         0x402D
 diff --git a/include/dailyred.h b/include/dailyred.h
 new file mode 100644
-index 0000000..47b058b
+index 0000000..f83f828
 --- /dev/null
 +++ b/include/dailyred.h
-@@ -0,0 +1,42 @@
+@@ -0,0 +1,43 @@
 +#ifndef GUARD_DAILYRED_H
 +#define GUARD_DAILYRED_H
 +
@@ -370,6 +370,7 @@ index 0000000..47b058b
 +
 +// src/dailyred.c
 +bool8 DailyRed_HasInjectedSeed(void);
++u8 DailyRed_GetTeamMode(void);
 +void CB2_DailyRed_StartFromCopyright(void);
 +void CB2_DailyRed_StartFromTitle(void);
 +void DailyRed_InitNewGame(void);
@@ -436,10 +437,10 @@ index 6d62084..44f97e4 100644
      DoTrainerBattle();
 diff --git a/src/dailyred.c b/src/dailyred.c
 new file mode 100644
-index 0000000..1ec6e68
+index 0000000..15ba02c
 --- /dev/null
 +++ b/src/dailyred.c
-@@ -0,0 +1,221 @@
+@@ -0,0 +1,228 @@
 +#include "global.h"
 +#include "gflib.h"
 +#include "dailyred.h"
@@ -472,12 +473,13 @@ index 0000000..1ec6e68
 +    u16 wins;    // the player's record before this game, for the record message
 +    u16 battles;
 +    u8 daily;    // TRUE: the website's daily game (one battle, then the game ends)
-+    u8 padding[3];
++    u8 teamMode; // 0 random; 1 fire, 2 water, 3 grass, 4 fighting, 5 electric, 6 rock
++    u8 padding[2];
 +};
 +
 +const struct DailyRedRomConfig gDailyRedRomConfig __attribute__((used, aligned(4))) =
 +{
-+    .magic = {'D', 'A', 'I', 'L', 'Y', 'R', 'E', 'D', '-', 'C', 'O', 'N', 'F', '-', 'V', '2'},
++    .magic = {'D', 'A', 'I', 'L', 'Y', 'R', 'E', 'D', '-', 'C', 'O', 'N', 'F', '-', 'V', '3'},
 +};
 +
 +// The website reads this from the emulator's memory (web/game-link.js) to
@@ -530,6 +532,12 @@ index 0000000..1ec6e68
 +static bool8 IsDailyGame(void)
 +{
 +    return *(const vu8 *)&gDailyRedRomConfig.daily;
++}
++
++u8 DailyRed_GetTeamMode(void)
++{
++    u8 mode = *(const vu8 *)&gDailyRedRomConfig.teamMode;
++    return mode <= 6 ? mode : 0;
 +}
 +
 +static void InitStatus(u32 seed)
@@ -746,10 +754,10 @@ index 0000000..37ee62e
 +};
 diff --git a/src/dailyred_team.c b/src/dailyred_team.c
 new file mode 100644
-index 0000000..4b9a87f
+index 0000000..bfc4934
 --- /dev/null
 +++ b/src/dailyred_team.c
-@@ -0,0 +1,493 @@
+@@ -0,0 +1,539 @@
 +#include "global.h"
 +#include "dailyred.h"
 +#include "party_menu.h"
@@ -762,17 +770,18 @@ index 0000000..4b9a87f
 +
 +// Random team generator for Daily Red.
 +//
-+// Rules (first version; see "Team generation" in the project README):
++// Rules (see "Team generation" in the project README):
 +//   - 6 different species out of the 386 Gen 1-3 Pokemon, whose base stat
 +//     totals add up to at least MIN_TEAM_BASE_STAT_TOTAL. 1 team in
-+//     LEGENDARY_TEAM_ODDS includes exactly one legendary; the rest have none.
++//     LEGENDARY_TEAM_ODDS includes one eligible legendary, except Fighting
++//     which has no Gen 1-3 legendary. The rest have none.
 +//   - Level 100 with a random personality (so random nature, gender, ability
 +//     and the normal 1/8192 shiny chance), random IVs from MIN_TEAM_IV to 31,
 +//     and EVs focused on its two best stats (see AssignFocusedEVs), close to
 +//     RED's perfect IVs and hand-picked EV spreads.
-+//   - Up to 4 different moves picked uniformly from everything the species can
-+//     learn by level-up (at any level) or by TM/HM. If the species has any
-+//     damaging move, at least one of the 4 is damaging.
++//   - Two distinct legal damaging moves of the chosen type (or either own
++//     type in mixed mode), plus random legal moves up to four, without repeats.
++//     Species unable to learn two qualifying attacks are ineligible.
 +//   - One held item, picked uniformly from sBattleItems plus the type-boosting
 +//     items for the types of its own attacking moves (RED's team holds items
 +//     too).
@@ -785,7 +794,6 @@ index 0000000..4b9a87f
 +#define MAX_TOTAL_EVS        510
 +#define MAX_STAT_EVS         252
 +#define MIN_TEAM_IV          25  // IVs are random from this to 31 (RED's are all 31)
-+#define MAX_SPECIES_ATTEMPTS 1000
 +#define MAX_MON_ATTEMPTS     10
 +#define MAX_TEAM_ATTEMPTS    1000
 +
@@ -803,6 +811,26 @@ index 0000000..4b9a87f
 +// (70% of them). Instead, 1 in LEGENDARY_TEAM_ODDS teams gets exactly one and
 +// the others get none.
 +#define LEGENDARY_TEAM_ODDS 8
++
++static EWRAM_DATA bool8 sEligible[NUM_SPECIES] = {0};
++static EWRAM_DATA u16 sRegularCount = 0;
++static EWRAM_DATA u16 sLegendaryCount = 0;
++static EWRAM_DATA u8 sMode = 0;
++static const u8 sModeTypes[] = {TYPE_MYSTERY, TYPE_FIRE, TYPE_WATER, TYPE_GRASS, TYPE_FIGHTING, TYPE_ELECTRIC, TYPE_ROCK};
++static u8 GetLearnableMoves(struct Pokemon *mon, u16 *moves);
++
++static bool8 IsGuaranteedAttack(u16 species, u16 move)
++{
++    u8 type = gBattleMoves[move].type;
++    if (gBattleMoves[move].power == 0 || move == MOVE_HIDDEN_POWER
++        || move == MOVE_WEATHER_BALL || move == MOVE_STRUGGLE
++        || move == MOVE_SNORE || move == MOVE_DREAM_EATER || move == MOVE_SPIT_UP
++        || move == MOVE_FUTURE_SIGHT || move == MOVE_DOOM_DESIRE || move == MOVE_BEAT_UP || move == MOVE_BIDE)
++        return FALSE;
++    if (sMode != 0)
++        return type == sModeTypes[sMode];
++    return type == gSpeciesInfo[species].types[0] || type == gSpeciesInfo[species].types[1];
++}
 +
 +static const u16 sLegendaries[] =
 +{
@@ -912,44 +940,81 @@ index 0000000..4b9a87f
 +    return FALSE;
 +}
 +
++// Compute legal pools once per generation, independently of personality or RNG.
++static void BuildEligiblePools(void)
++{
++    struct Pokemon mon;
++    u16 species, moves[MAX_CANDIDATE_MOVES];
++    u8 i, count, attacks;
++
++    sMode = DailyRed_GetTeamMode();
++    sRegularCount = sLegendaryCount = 0;
++    memset(sEligible, 0, sizeof(sEligible));
++    for (species = 1; species < NUM_SPECIES; species++)
++    {
++        if (!IsEligibleSpecies(species))
++            continue;
++        if (sMode != 0 && gSpeciesInfo[species].types[0] != sModeTypes[sMode]
++            && gSpeciesInfo[species].types[1] != sModeTypes[sMode])
++            continue;
++        ZeroMonData(&mon);
++        SetMonData(&mon, MON_DATA_SPECIES, &species);
++        count = GetLearnableMoves(&mon, moves);
++        attacks = 0;
++        for (i = 0; i < count; i++)
++            if (IsGuaranteedAttack(species, moves[i]))
++                attacks++;
++        if (attacks < 2)
++            continue;
++        sEligible[species] = TRUE;
++        if (IsLegendary(species))
++            sLegendaryCount++;
++        else
++            sRegularCount++;
++    }
++}
++
 +// A random non-legendary species that isn't already on the team.
 +static u16 PickSpecies(u32 *rng, const u16 *taken, u8 takenCount)
 +{
 +    u16 species;
-+    s32 i;
-+
-+    for (i = 0; i < MAX_SPECIES_ATTEMPTS; i++)
-+    {
-+        species = 1 + TeamRandom(rng) % (NUM_SPECIES - 1);
-+        if (IsEligibleSpecies(species) && !IsLegendary(species) && !IsSpeciesTaken(species, taken, takenCount))
-+            return species;
-+    }
-+
-+    // Only reachable if the eligibility rules leave almost nothing to pick.
++    u16 available = sRegularCount, pick;
++    u8 i;
++    for (i = 0; i < takenCount; i++)
++        if (!IsLegendary(taken[i]))
++            available--;
++    pick = TeamRandom(rng) % available;
 +    for (species = 1; species < NUM_SPECIES; species++)
 +    {
-+        if (IsEligibleSpecies(species) && !IsLegendary(species) && !IsSpeciesTaken(species, taken, takenCount))
++        if (sEligible[species] && !IsLegendary(species) && !IsSpeciesTaken(species, taken, takenCount) && pick-- == 0)
 +            return species;
 +    }
-+    return SPECIES_BULBASAUR;
++    return SPECIES_NONE; // unreachable: every audited mode has at least six regulars
 +}
 +
 +// Decides whether this team gets a legendary, then draws the other Pokemon
 +// until the team meets MIN_TEAM_BASE_STAT_TOTAL (about 1 in 20 draws do), so
 +// every qualifying team is equally likely. In the practically impossible case
-+// that none does, the strongest team drawn is used.
++// that none does, the strongest eligible regulars fill the remaining slots.
 +static void PickTeamSpecies(u16 *species, u32 *rng)
 +{
-+    u16 best[PARTY_SIZE];
-+    u32 total, bestTotal = 0;
++    u32 total;
 +    s32 attempt;
 +    u8 i, first = 0, slot;
-+    u16 temp;
++    u16 temp, candidate, best, pick;
 +
 +    // Decided once per team, before the minimum, so the minimum can't make
 +    // legendaries more likely.
-+    if (TeamRandom(rng) % LEGENDARY_TEAM_ODDS == 0)
-+        species[first++] = sLegendaries[TeamRandom(rng) % ARRAY_COUNT(sLegendaries)];
++    if (TeamRandom(rng) % LEGENDARY_TEAM_ODDS == 0 && sLegendaryCount != 0)
++    {
++        pick = TeamRandom(rng) % sLegendaryCount;
++        for (i = 0; i < ARRAY_COUNT(sLegendaries); i++)
++            if (sEligible[sLegendaries[i]] && pick-- == 0)
++            {
++                species[first++] = sLegendaries[i];
++                break;
++            }
++    }
 +
 +    for (attempt = 0; attempt < MAX_TEAM_ATTEMPTS; attempt++)
 +    {
@@ -962,14 +1027,21 @@ index 0000000..4b9a87f
 +        }
 +        if (total >= MIN_TEAM_BASE_STAT_TOTAL)
 +            break;
-+        if (total > bestTotal)
-+        {
-+            bestTotal = total;
-+            memcpy(best, species, sizeof(best));
-+        }
 +    }
 +    if (attempt == MAX_TEAM_ATTEMPTS)
-+        memcpy(species, best, sizeof(best));
++    {
++        // Bounded deterministic fallback: strongest eligible distinct regulars.
++        // The pool audit proves this exceeds 2700 with or without a legendary.
++        for (i = first; i < PARTY_SIZE; i++)
++        {
++            best = SPECIES_NONE;
++            for (candidate = 1; candidate < NUM_SPECIES; candidate++)
++                if (sEligible[candidate] && !IsLegendary(candidate) && !IsSpeciesTaken(candidate, species, i)
++                    && (best == SPECIES_NONE || GetBaseStatTotal(candidate) > GetBaseStatTotal(best)))
++                    best = candidate;
++            species[i] = best;
++        }
++    }
 +
 +    // Put the legendary (if any) in a random party slot instead of the lead.
 +    slot = TeamRandom(rng) % PARTY_SIZE;
@@ -1010,54 +1082,34 @@ index 0000000..4b9a87f
 +    return count;
 +}
 +
-+static bool8 IsDamagingMove(u16 move)
-+{
-+    // Fixed-damage moves (Seismic Toss, Dragon Rage, ...) have power 1.
-+    return gBattleMoves[move].power != 0;
-+}
-+
++// Reserve two legal same-type attacks, then draw the other slots without repeats.
 +static void AssignRandomMoves(struct Pokemon *mon, u32 *rng)
 +{
-+    u16 moves[MAX_CANDIDATE_MOVES];
-+    u8 count, numMoves, numDamaging, i, j;
-+    u16 temp;
++    u16 moves[MAX_CANDIDATE_MOVES], temp;
++    u16 species = GetMonData(mon, MON_DATA_SPECIES);
++    u8 count = GetLearnableMoves(mon, moves);
++    u8 i, j, pick, qualifying = 0;
++    u8 numMoves = min(count, MAX_MON_MOVES);
 +
-+    count = GetLearnableMoves(mon, moves);
-+    numMoves = min(count, MAX_MON_MOVES);
-+
-+    // Partial Fisher-Yates shuffle: moves[0..numMoves) becomes a uniformly
-+    // random selection without repeats.
++    for (i = 0; i < count; i++)
++        if (IsGuaranteedAttack(species, moves[i]))
++        {
++            SWAP(moves[qualifying], moves[i], temp);
++            qualifying++;
++        }
++    // Eligibility guarantees qualifying >= 2 for every species in the pool.
 +    for (i = 0; i < numMoves; i++)
 +    {
-+        j = i + TeamRandom(rng) % (count - i);
++        pick = i < 2 ? qualifying : count;
++        j = i + TeamRandom(rng) % (pick - i);
 +        SWAP(moves[i], moves[j], temp);
 +    }
-+
-+    // If none of the picks can deal damage, swap one of them for a random
-+    // damaging move from the rest of the pool (if there is one).
-+    for (i = 0; i < numMoves && !IsDamagingMove(moves[i]); i++)
-+        ;
-+    if (i == numMoves)
++    // Shuffle the final moves so the guaranteed attacks have no fixed slots.
++    for (i = 0; i < numMoves; i++)
 +    {
-+        numDamaging = 0;
-+        for (j = numMoves; j < count; j++)
-+        {
-+            if (IsDamagingMove(moves[j]))
-+                numDamaging++;
-+        }
-+        if (numDamaging != 0)
-+        {
-+            u8 pick = TeamRandom(rng) % numDamaging;
-+            for (j = numMoves; j < count; j++)
-+            {
-+                if (IsDamagingMove(moves[j]) && pick-- == 0)
-+                    break;
-+            }
-+            i = TeamRandom(rng) % numMoves;
-+            SWAP(moves[i], moves[j], temp);
-+        }
++        j = i + TeamRandom(rng) % (numMoves - i);
++        SWAP(moves[i], moves[j], temp);
 +    }
-+
 +    for (i = 0; i < MAX_MON_MOVES; i++)
 +        SetMonMoveSlot(mon, i < numMoves ? moves[i] : MOVE_NONE, i);
 +}
@@ -1188,9 +1240,10 @@ index 0000000..4b9a87f
 +static bool8 IsValidTeamMon(struct Pokemon *mon)
 +{
 +    u16 moves[MAX_MON_MOVES];
-+    u8 i, j;
++    u8 i, j, attacks = 0;
++    u16 species = GetMonData(mon, MON_DATA_SPECIES);
 +
-+    if (!IsEligibleSpecies(GetMonData(mon, MON_DATA_SPECIES)))
++    if (!sEligible[species])
 +        return FALSE;
 +    if (GetMonData(mon, MON_DATA_LEVEL) != MAX_LEVEL)
 +        return FALSE;
@@ -1205,6 +1258,8 @@ index 0000000..4b9a87f
 +    {
 +        if (moves[i] == MOVE_NONE)
 +            continue;
++        if (IsGuaranteedAttack(species, moves[i]))
++            attacks++;
 +        if (GetMonData(mon, MON_DATA_PP1 + i) == 0)
 +            return FALSE;
 +        for (j = i + 1; j < MAX_MON_MOVES; j++)
@@ -1213,7 +1268,7 @@ index 0000000..4b9a87f
 +                return FALSE;
 +        }
 +    }
-+    return TRUE;
++    return attacks >= 2;
 +}
 +
 +void DailyRed_GenerateTeam(struct Pokemon *party, u32 *rngState)
@@ -1224,6 +1279,7 @@ index 0000000..4b9a87f
 +    for (i = 0; i < PARTY_SIZE; i++)
 +        ZeroMonData(&party[i]);
 +
++    BuildEligiblePools();
 +    PickTeamSpecies(species, rngState);
 +    for (i = 0; i < PARTY_SIZE; i++)
 +    {
@@ -1234,12 +1290,10 @@ index 0000000..4b9a87f
 +                break;
 +        }
 +
-+        // Should never happen, but never hand the player a broken Pokemon:
-+        // fall back to the game's own default level 100 moveset.
++        // Retain the same legal-move contract even in the defensive retry path.
 +        if (attempt == MAX_MON_ATTEMPTS)
 +        {
-+            CreateTeamMon(&party[i], species[i], rngState);
-+            FinishTeamMon(&party[i], rngState);
++            CreateRandomMon(&party[i], species[i], rngState);
 +        }
 +    }
 +}

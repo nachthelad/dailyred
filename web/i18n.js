@@ -1,5 +1,9 @@
 const messages = {
   en: {
+    chooseTeam: 'How do you want to play?', teamMode: 'Team mode',
+    choiceNote: 'Six random Pokémon. One battle a day across all modes.',
+    modeRandom: 'Random', modeFire: 'Fire', modeWater: 'Water', modeGrass: 'Grass',
+    modeFighting: 'Fighting', modeElectric: 'Electric', modeRock: 'Rock', begin: 'Begin', choiceBack: 'Back',
     install: 'Install Daily Red', close: 'Close',
     installHint: 'Keep Daily Red on your home screen. Install to play in its own window.',
     installIos: 'To install: open in Safari, tap Share, then Add to Home Screen. If offered, enable Open as Web App.',
@@ -21,6 +25,10 @@ const messages = {
     description: 'One Pokémon battle a day: six random level 100 Pokémon against RED at the top of the mountain.',
   },
   es: {
+    chooseTeam: '¿Cómo querés jugar?', teamMode: 'Modalidad del equipo',
+    choiceNote: 'Seis Pokémon al azar. Una batalla diaria entre todas las modalidades.',
+    modeRandom: 'Aleatorio', modeFire: 'Fuego', modeWater: 'Agua', modeGrass: 'Planta',
+    modeFighting: 'Lucha', modeElectric: 'Eléctrico', modeRock: 'Roca', begin: 'Comenzar', choiceBack: 'Volver',
     install: 'Instalar Daily Red', close: 'Cerrar',
     installHint: 'Tené Daily Red en tu pantalla de inicio. Instalalo para jugar en su propia ventana.',
     installIos: 'Para instalar: abrí en Safari, tocá Compartir y Agregar a inicio. Si aparece, activá Abrir como app web.',

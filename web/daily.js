@@ -1,7 +1,8 @@
 // The daily game and the player's stats, saved in this browser (localStorage).
 //
-// Everyone gets the same team on the same calendar day (in their own time
-// zone, like Wordle), and each browser gets one battle with RED per day.
+// Everyone choosing the same mode gets the same team on the same calendar
+// day (in their own time zone, like Wordle). Each browser gets one battle
+// with RED per day, shared across all modes.
 
 const STORAGE_KEY = 'dailyred-stats';
 
